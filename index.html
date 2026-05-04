@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>价值投资分析系统 - 巴菲特·芒格投资理念</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="logo">📊</span>
+            <span class="brand-text">价值投资分析系统</span>
+        </div>
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-tab="analysis">企业分析</button>
+            <button class="nav-tab" data-tab="moat">护城河</button>
+            <button class="nav-tab" data-tab="valuation">内在价值</button>
+            <button class="nav-tab" data-tab="portfolio">投资组合</button>
+            <button class="nav-tab" data-tab="checklist">心理检查清单</button>
+            <button class="nav-tab" data-tab="learn">学习资料</button>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <!-- 左侧边栏 -->
+        <aside class="sidebar">
+            <div class="search-section">
+                <h3>股票搜索</h3>
+                <div class="search-box">
+                    <input type="text" id="stockSearch" placeholder="输入股票代码或名称（如：600519 或 茅台）" autocomplete="off">
+                    <button id="searchBtn">🔍</button>
+                </div>
+                <div id="searchResults" class="search-results"></div>
+                <div class="search-status">
+                    <span id="stockCount">已加载 3 只股票</span>
+                    <button id="loadAllStocks" class="btn-small">加载全部A股</button>
+                </div>
+            </div>
+
+            <div class="recent-section">
+                <h3>最近分析</h3>
+                <ul id="recentList" class="recent-list">
+                    <li data-code="600519">贵州茅台 (600519)</li>
+                    <li data-code="000858">五粮液 (000858)</li>
+                    <li data-code="000333">美的集团 (000333)</li>
+                </ul>
+            </div>
+
+            <div class="buffett-checklist-mini">
+                <h3>巴菲特检查清单</h3>
+                <div class="checklist-items">
+                    <label><input type="checkbox"> 理解商业模式</label>
+                    <label><input type="checkbox"> 有竞争优势</label>
+                    <label><input type="checkbox"> 管理层诚信</label>
+                    <label><input type="checkbox"> 有安全边际</label>
+                    <label><input type="checkbox"> 愿意持有10年</label>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="content">
+            <!-- 企业分析面板 -->
+            <div id="analysisPanel" class="panel active">
+                <div class="stock-header">
+                    <div class="stock-title">
+                        <h1 id="stockName">贵州茅台</h1>
+                        <span id="stockCode" class="stock-code">600519.SH</span>
+                    </div>
+                    <div class="stock-price-section">
+                        <div class="current-price">
+                            <span id="currentPrice" class="price">¥1,688.00</span>
+                            <span id="priceChange" class="change positive">+2.35%</span>
+                        </div>
+                        <div class="update-time">更新时间: <span id="updateTime">2026-05-04</span></div>
+                    </div>
+                </div>
+
+                <!-- 核心指标仪表盘 -->
+                <div class="dashboard">
+                    <div class="score-card quality">
+                        <div class="score-value" id="qualityScore">92</div>
+                        <div class="score-label">企业质量评分</div>
+                        <div class="score-grade grade-excellent">优秀</div>
+                    </div>
+                    <div class="score-card moat">
+                        <div class="score-value" id="moatScore">85</div>
+                        <div class="score-label">护城河强度</div>
+                        <div class="score-grade grade-good">宽护城河</div>
+                    </div>
+                    <div class="score-card margin">
+                        <div class="score-value" id="marginScore">28%</div>
+                        <div class="score-label">安全边际</div>
+                        <div class="score-grade grade-watch">观望</div>
+                    </div>
+                    <div class="score-card value">
+                        <div class="score-value" id="intrinsicValue">¥2,350</div>
+                        <div class="score-label">内在价值</div>
+                        <div class="score-grade">DCF估值</div>
+                    </div>
+                </div>
+
+                <!-- 关键财务指标 -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon">📈</div>
+                        <div class="metric-data">
+                            <div class="metric-value" id="roe">25.3%</div>
+                            <div class="metric-label">ROE (5年平均)</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">💰</div>
+                        <div class="metric-data">
+                            <div class="metric-value" id="roic">18.7%</div>
+                            <div class="metric-label">ROIC</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🏭</div>
+                        <div class="metric-data">
+                            <div class="metric-value" id="grossMargin">91.5%</div>
+                            <div class="metric-label">毛利率</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">📊</div>
+                        <div class="metric-data">
+                            <div class="metric-value" id="netMargin">52.8%</div>
+                            <div class="metric-label">净利率</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">⚖️</div>
+                        <div class="metric-data">
+                            <div class="metric-value" id="debtRatio">19.5%</div>
+                            <div class="metric-label">资产负债率</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">💵</div>
+                        <div class="metric-data">
+                            <div class="metric-value" id="fcf">¥587亿</div>
+                            <div class="metric-label">自由现金流</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 财务趋势图表 -->
+                <div class="chart-section">
+                    <h3>财务指标趋势 (5年)</h3>
+                    <div class="chart-container">
+                        <canvas id="financialChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 详细分析 -->
+                <div class="analysis-details">
+                    <div class="detail-section">
+                        <h4>📊 盈利能力分析</h4>
+                        <div class="detail-content" id="profitabilityAnalysis">
+                            <p>茅台过去5年平均ROE为25.3%，远超15%的优秀标准。毛利率保持在91%以上，显示出极强的定价权。</p>
+                            <div class="indicator-bars">
+                                <div class="indicator-bar">
+                                    <span>ROE稳定性</span>
+                                    <div class="bar"><div class="fill" style="width: 95%"></div></div>
+                                    <span>95/100</span>
+                                </div>
+                                <div class="indicator-bar">
+                                    <span>盈利持续性</span>
+                                    <div class="bar"><div class="fill" style="width: 98%"></div></div>
+                                    <span>98/100</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h4>💪 竞争优势分析</h4>
+                        <div class="detail-content" id="competitiveAnalysis">
+                            <div class="moat-tags">
+                                <span class="moat-tag strong">品牌护城河</span>
+                                <span class="moat-tag strong">转换成本</span>
+                                <span class="moat-tag medium">网络效应</span>
+                            </div>
+                            <p>茅台拥有中国白酒行业最强的品牌护城河，消费者心智份额极高，定价权强大。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 护城河分析面板 -->
+            <div id="moatPanel" class="panel">
+                <h2>🏰 护城河深度分析</h2>
+                
+                <div class="moat-overview">
+                    <div class="moat-radar">
+                        <canvas id="moatRadarChart"></canvas>
+                    </div>
+                    <div class="moat-summary">
+                        <h3>护城河评估结果</h3>
+                        <div class="moat-score-big">
+                            <span class="score-number">85</span>
+                            <span class="score-text">/100</span>
+                        </div>
+                        <div class="moat-level">宽护城河 (Wide Moat)</div>
+                        <p class="moat-desc">该企业拥有持久的竞争优势，预计能维持高资本回报率超过20年。</p>
+                    </div>
+                </div>
+
+                <div class="moat-details">
+                    <div class="moat-type-card">
+                        <div class="moat-type-header">
+                            <span class="moat-icon">🏷️</span>
+                            <h4>品牌护城河</h4>
+                            <span class="moat-strength strong">强</span>
+                        </div>
+                        <div class="moat-type-content">
+                            <p>茅台是中国白酒第一品牌，具有极高的品牌认知度和忠诚度。</p>
+                            <ul>
+                                <li>品牌溢价能力: 产品售价远超成本</li>
+                                <li>消费者心智份额: 高端白酒代名词</li>
+                                <li>定价权: 持续提价能力</li>
+                            </ul>
+                            <div class="score-detail">评分: 45/50</div>
+                        </div>
+                    </div>
+
+                    <div class="moat-type-card">
+                        <div class="moat-type-header">
+                            <span class="moat-icon">🔄</span>
+                            <h4>转换成本</h4>
+                            <span class="moat-strength medium">中</span>
+                        </div>
+                        <div class="moat-type-content">
+                            <p>消费者对茅台的偏好形成习惯，转换到其他品牌存在心理成本。</p>
+                            <ul>
+                                <li>消费习惯: 长期饮用形成的口味偏好</li>
+                                <li>社交货币: 商务场合的身份象征</li>
+                                <li>收藏价值: 老酒升值预期</li>
+                            </ul>
+                            <div class="score-detail">评分: 20/30</div>
+                        </div>
+                    </div>
+
+                    <div class="moat-type-card">
+                        <div class="moat-type-header">
+                            <span class="moat-icon">🏭</span>
+                            <h4>成本优势</h4>
+                            <span class="moat-strength weak">弱</span>
+                        </div>
+                        <div class="moat-type-content">
+                            <p>茅台的成本优势主要体现在独特的地理环境和工艺传承，而非规模经济。</p>
+                            <ul>
+                                <li>产地稀缺性: 离开茅台镇无法生产</li>
+                                <li>工艺传承: 百年酿造工艺</li>
+                                <li>规模效应: 有限，产能受限</li>
+                            </ul>
+                            <div class="score-detail">评分: 15/20</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="moat-trend">
+                    <h3>护城河变化趋势</h3>
+                    <div class="trend-chart">
+                        <canvas id="moatTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 内在价值面板 -->
+            <div id="valuationPanel" class="panel">
+                <h2>💎 内在价值评估</h2>
+                
+                <div class="valuation-summary">
+                    <div class="valuation-result">
+                        <div class="value-box">
+                            <div class="value-label">DCF估值</div>
+                            <div class="value-number" id="dcfValue">¥2,350</div>
+                        </div>
+                        <div class="value-box">
+                            <div class="value-label">当前价格</div>
+                            <div class="value-number current" id="currentPriceVal">¥1,688</div>
+                        </div>
+                        <div class="value-box">
+                            <div class="value-label">安全边际</div>
+                            <div class="value-number margin" id="marginValue">28.2%</div>
+                        </div>
+                    </div>
+                    <div class="valuation-signal">
+                        <div class="signal-box watch">
+                            <span class="signal-icon">⏸️</span>
+                            <span class="signal-text">观望</span>
+                        </div>
+                        <p class="signal-desc">当前价格接近内在价值，建议等待更好的买入时机（安全边际>30%）</p>
+                    </div>
+                </div>
+
+                <div class="dcf-calculator">
+                    <h3>DCF模型参数</h3>
+                    <div class="dcf-params">
+                        <div class="param-group">
+                            <label>当前自由现金流 (亿元)</label>
+                            <input type="number" id="currentFCF" value="587">
+                        </div>
+                        <div class="param-group">
+                            <label>预测期增长率 (%)</label>
+                            <input type="number" id="growthRate" value="12">
+                        </div>
+                        <div class="param-group">
+                            <label>永续增长率 (%)</label>
+                            <input type="number" id="terminalGrowth" value="3">
+                        </div>
+                        <div class="param-group">
+                            <label>折现率 (%)</label>
+                            <input type="number" id="discountRate" value="9">
+                        </div>
+                        <div class="param-group">
+                            <label>总股本 (亿股)</label>
+                            <input type="number" id="totalShares" value="12.56">
+                        </div>
+                    </div>
+                    <button id="calculateDCF" class="btn-primary">重新计算</button>
+                </div>
+
+                <div class="valuation-methods">
+                    <h3>多种估值方法对比</h3>
+                    <table class="valuation-table">
+                        <thead>
+                            <tr>
+                                <th>估值方法</th>
+                                <th>估值结果</th>
+                                <th>关键假设</th>
+                                <th>安全边际</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>DCF模型</td>
+                                <td>¥2,350</td>
+                                <td>增长12%，折现9%</td>
+                                <td class="positive">28.2%</td>
+                            </tr>
+                            <tr>
+                                <td>PE估值法</td>
+                                <td>¥2,100</td>
+                                <td>合理PE 25倍</td>
+                                <td class="positive">19.6%</td>
+                            </tr>
+                            <tr>
+                                <td>PB估值法</td>
+                                <td>¥1,850</td>
+                                <td>合理PB 8倍</td>
+                                <td class="negative">-8.8%</td>
+                            </tr>
+                            <tr>
+                                <td>格雷厄姆公式</td>
+                                <td>¥2,450</td>
+                                <td>增长10%</td>
+                                <td class="positive">31.1%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="sensitivity-analysis">
+                    <h3>敏感性分析</h3>
+                    <div class="sensitivity-chart">
+                        <canvas id="sensitivityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 投资组合面板 -->
+            <div id="portfolioPanel" class="panel">
+                <h2>📈 投资组合分析</h2>
+                
+                <div class="portfolio-overview">
+                    <div class="portfolio-stats">
+                        <div class="stat-card">
+                            <div class="stat-value" id="portfolioValue">¥1,250,000</div>
+                            <div class="stat-label">组合总市值</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="portfolioCost">¥980,000</div>
+                            <div class="stat-label">总成本</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value positive" id="portfolioReturn">+27.6%</div>
+                            <div class="stat-label">总收益率</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="portfolioMoat">78</div>
+                            <div class="stat-label">平均护城河评分</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="portfolio-holdings">
+                    <h3>持仓明细</h3>
+                    <table class="holdings-table">
+                        <thead>
+                            <tr>
+                                <th>股票</th>
+                                <th>持仓数量</th>
+                                <th>成本价</th>
+                                <th>当前价</th>
+                                <th>市值</th>
+                                <th>盈亏</th>
+                                <th>护城河</th>
+                                <th>安全边际</th>
+                            </tr>
+                        </thead>
+                        <tbody id="holdingsTableBody">
+                            <tr>
+                                <td>贵州茅台</td>
+                                <td>100股</td>
+                                <td>¥1,200</td>
+                                <td>¥1,688</td>
+                                <td>¥168,800</td>
+                                <td class="positive">+40.7%</td>
+                                <td><span class="badge wide">宽</span></td>
+                                <td>28%</td>
+                            </tr>
+                            <tr>
+                                <td>五粮液</td>
+                                <td>200股</td>
+                                <td>¥120</td>
+                                <td>¥158</td>
+                                <td>¥31,600</td>
+                                <td class="positive">+31.7%</td>
+                                <td><span class="badge wide">宽</span></td>
+                                <td>35%</td>
+                            </tr>
+                            <tr>
+                                <td>美的集团</td>
+                                <td>500股</td>
+                                <td>¥55</td>
+                                <td>¥62</td>
+                                <td>¥31,000</td>
+                                <td class="positive">+12.7%</td>
+                                <td><span class="badge narrow">窄</span></td>
+                                <td>18%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="portfolio-analysis">
+                    <div class="analysis-chart">
+                        <h3>行业分布</h3>
+                        <canvas id="sectorChart"></canvas>
+                    </div>
+                    <div class="analysis-chart">
+                        <h3>护城河分布</h3>
+                        <canvas id="moatDistributionChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="portfolio-suggestions">
+                    <h3>🎯 组合优化建议</h3>
+                    <div class="suggestion-list">
+                        <div class="suggestion-item">
+                            <span class="suggestion-icon">⚠️</span>
+                            <p>美的集团安全边际仅18%，建议等待更好的买入时机</p>
+                        </div>
+                        <div class="suggestion-item">
+                            <span class="suggestion-icon">💡</span>
+                            <p>建议增加一只具有宽护城河的消费股，提升组合稳定性</p>
+                        </div>
+                        <div class="suggestion-item">
+                            <span class="suggestion-icon">✅</span>
+                            <p>茅台和五粮液护城河评分优秀，可长期持有</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 心理检查清单面板 -->
+            <div id="checklistPanel" class="panel">
+                <h2>🧠 投资决策心理检查清单</h2>
+                <p class="checklist-intro">基于查理·芒格的《人类误判心理学》，在投资前请认真检查以下心理偏见：</p>
+
+                <div class="checklist-categories">
+                    <div class="category">
+                        <h3>📊 认知偏见</h3>
+                        <div class="check-items">
+                            <label class="check-item">
+                                <input type="checkbox" id="bias1">
+                                <span class="check-text">我是否因为喜欢这家公司而过度乐观？</span>
+                                <span class="bias-name">喜欢/热爱倾向</span>
+                            </label>
+                            <label class="check-item">
+                                <input type="checkbox" id="bias2">
+                                <span class="check-text">我是否因为讨厌管理层而忽视了好的投资机会？</span>
+                                <span class="bias-name">讨厌/憎恨倾向</span>
+                            </label>
+                            <label class="check-item">
+                                <input type="checkbox" id="bias3">
+                                <span class="check-text">我是否急于做决定，没有充分研究？</span>
+                                <span class="bias-name">避免怀疑倾向</span>
+                            </label>
+                            <label class="check-item">
+                                <input type="checkbox" id="bias4">
+                                <span class="check-text">我是否坚持之前的观点，即使新证据出现？</span>
+                                <span class="bias-name">避免不一致性倾向</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="category">
+                        <h3>💰 损失与收益偏见</h3>
+                        <div class="check-items">
+                            <label class="check-item">
+                                <input type="checkbox" id="bias5">
+                                <span class="check-text">我是否因为害怕损失而错过好机会？</span>
+                                <span class="bias-name">被剥夺超级反应倾向</span>
+                            </label>
+                            <label class="check-item">
+                                <input type="checkbox" id="bias6">
+                                <span class="check-text">我是否过度自信，认为自己能战胜市场？</span>
+                                <span class="bias-name">自视过高倾向</span>
+                            </label>
+                            <label class="check-item">
+                                <input type="checkbox" id="bias7">
+                                <span class="check-text">我是否只关注最近的新闻而忽视了长期趋势？</span>
+                                <span class="bias-name">错误衡量易得性倾向</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="category">
+                        <h3>👥 社会影响偏见</h3>
+                        <div class="check-items">
+                            <label class="check-item">
+                                <input type="checkbox" id="bias8">
+                                <span class="check-text">我是否因为大家都在买而跟风买入？</span>
+                                <span class="bias-name">社会认同倾向</span>
+                            </label>
+                            <label class="check-item">
+                                <input type="checkbox" id="bias9">
+                                <span class="check-text">我是否盲目相信权威人士的建议？</span>
+                                <span class="bias-name">权威错误影响倾向</span>
+                            </label>
+                            <label class="check-item">
+                                <input type="checkbox" id="bias10">
+                                <span class="check-text">我是否被华丽的术语和复杂模型迷惑？</span>
+                                <span class="bias-name">废话倾向</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-result">
+                    <h3>检查结果</h3>
+                    <div class="result-score">
+                        <span class="score-label">心理偏见风险:</span>
+                        <span class="score-value" id="biasScore">低</span>
+                    </div>
+                    <div class="result-advice" id="biasAdvice">
+                        您已通过大部分心理偏见检查，可以做出相对理性的投资决策。
+                    </div>
+                </div>
+
+                <div class="decision-log">
+                    <h3>📝 投资决策日志</h3>
+                    <div class="log-form">
+                        <textarea id="decisionNote" placeholder="记录您的投资思考过程...
+例如：
+- 为什么买入这只股票？
+- 预期的持有期是多久？
+- 什么情况下会卖出？
+- 最坏情况下的损失承受范围？"></textarea>
+                        <button id="saveDecision" class="btn-primary">保存决策记录</button>
+                    </div>
+                    <div class="log-history" id="decisionHistory">
+                        <!-- 历史决策记录 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 学习资料面板 -->
+            <div id="learnPanel" class="panel">
+                <h2>📚 价值投资学习资料</h2>
+
+                <div class="learn-sections">
+                    <div class="learn-card">
+                        <div class="learn-icon">📖</div>
+                        <h3>经典著作</h3>
+                        <ul class="book-list">
+                            <li>
+                                <strong>《聪明的投资者》</strong>
+                                <span class="author">本杰明·格雷厄姆</span>
+                                <p>价值投资的圣经，介绍了安全边际、市场先生等核心概念。</p>
+                            </li>
+                            <li>
+                                <strong>《证券分析》</strong>
+                                <span class="author">格雷厄姆 & 多德</span>
+                                <p>详细的价值投资方法论，财务报表分析的经典教材。</p>
+                            </li>
+                            <li>
+                                <strong>《穷查理宝典》</strong>
+                                <span class="author">查理·芒格</span>
+                                <p>芒格的智慧箴言录，多元思维模型的最佳指南。</p>
+                            </li>
+                            <li>
+                                <strong>《巴菲特致股东的信》</strong>
+                                <span class="author">沃伦·巴菲特</span>
+                                <p>巴菲特投资哲学的完整记录，每年必读。</p>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="learn-card">
+                        <div class="learn-icon">🎯</div>
+                        <h3>核心概念</h3>
+                        <div class="concept-list">
+                            <div class="concept-item">
+                                <h4>能力圈</h4>
+                                <p>只投资自己能理解的简单企业，不懂不做。</p>
+                            </div>
+                            <div class="concept-item">
+                                <h4>护城河</h4>
+                                <p>企业持久的竞争优势，保护企业免受竞争侵蚀。</p>
+                            </div>
+                            <div class="concept-item">
+                                <h4>安全边际</h4>
+                                <p>以远低于内在价值的价格买入，为错误预留空间。</p>
+                            </div>
+                            <div class="concept-item">
+                                <h4>市场先生</h4>
+                                <p>市场短期是投票机，长期是称重机。利用市场的非理性。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="learn-card">
+                        <div class="learn-icon">💼</div>
+                        <h3>投资案例</h3>
+                        <div class="case-list">
+                            <div class="case-item">
+                                <h4>可口可乐 (1988)</h4>
+                                <p>巴菲特投资10亿美元，看重其全球品牌和定价权。30年回报超过20倍。</p>
+                                <div class="case-lesson">
+                                    <strong>启示:</strong> 优秀品牌护城河的长期价值
+                                </div>
+                            </div>
+                            <div class="case-item">
+                                <h4>苹果 (2016)</h4>
+                                <p>巴菲特打破不投科技股的惯例，看重其生态系统护城河和消费者忠诚度。</p>
+                                <div class="case-lesson">
+                                    <strong>启示:</strong> 生态系统形成的转换成本护城河
+                                </div>
+                            </div>
+                            <div class="case-item">
+                                <h4>喜诗糖果 (1972)</h4>
+                                <p>2500万美元收购，教会巴菲特为优质企业支付合理价格的重要性。</p>
+                                <div class="case-lesson">
+                                    <strong>启示:</strong> 优质企业的溢价是合理的
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="learn-card">
+                        <div class="learn-icon">🧮</div>
+                        <h3>估值工具</h3>
+                        <div class="tool-list">
+                            <div class="tool-item">
+                                <h4>DCF计算器</h4>
+                                <p>现金流折现模型，计算企业内在价值。</p>
+                                <button class="btn-small" onclick="switchTab('valuation')">使用工具</button>
+                            </div>
+                            <div class="tool-item">
+                                <h4>护城河评分</h4>
+                                <p>评估企业竞争优势的强度和持久性。</p>
+                                <button class="btn-small" onclick="switchTab('moat')">使用工具</button>
+                            </div>
+                            <div class="tool-item">
+                                <h4>质量评分</h4>
+                                <p>综合评估企业财务质量和经营状况。</p>
+                                <button class="btn-small" onclick="switchTab('analysis')">使用工具</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="stock-api.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
