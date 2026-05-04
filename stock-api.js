@@ -202,29 +202,24 @@ class StockAPI {
     }
 
     /**
-     * 搜索股票
-     */
-    async searchStocks(keyword) {
-        if (!keyword || keyword.length < 2) return [];
-        
-        try {
-            const response = await fetch(`https://searchapi.eastmoney.com/api/suggest/get?input=${encodeURIComponent(keyword)}&type=14&count=10`);
-            const data = await response.json();
-            
-            if (data.QuotationCodeTable && data.QuotationCodeTable.Data) {
-                return data.QuotationCodeTable.Data.map(item => ({
-                    code: item.Code,
-                    name: item.Name,
-                    market: item.Market,
-                    pinyin: item.PinYin
-                }));
-            }
-        } catch (error) {
-            console.error('搜索股票失败:', error);
-        }
-        
-        return [];
-    }
+ * 搜索股票（使用本地列表搜索，避免CORS问题）
+ */
+async searchStocks(keyword) {
+    if (!keyword || keyword.length < 1) return [];
+    
+    const lowerKeyword = keyword.toLowerCase();
+    
+    // 确保股票列表已加载
+    const stockList = await this.getStockList();
+    
+    // 本地过滤搜索
+    const results = stockList.filter(stock => 
+        stock.code.includes(keyword) || 
+        stock.name.toLowerCase().includes(lowerKeyword)
+    ).slice(0, 10);
+    
+    return results;
+}
 
     /**
      * 获取行业分类
