@@ -16,44 +16,67 @@ class StockAPI {
         this.stockListCacheExpiry = 24 * 60 * 60 * 1000; // 24小时
     }
 
-   async getStockList() {
-    // 检查缓存
-    if (this.stockListCache && this.stockListCacheTime) {
-        const age = Date.now() - this.stockListCacheTime;
-        if (age < this.stockListCacheExpiry) {
-            return this.stockListCache;
+    /**
+     * 获取A股股票列表（轻量级，只包含代码和名称）
+     */
+    async getStockList() {
+        // 检查缓存
+        if (this.stockListCache && this.stockListCacheTime) {
+            const age = Date.now() - this.stockListCacheTime;
+            if (age < this.stockListCacheExpiry) {
+                return this.stockListCache;
+            }
         }
-    }
 
-    try {
-        const fallbackList = this.getExtendedStockList();
-        
-        this.stockListCache = fallbackList;
-        this.stockListCacheTime = Date.now();
+        try {
+            const fallbackList = this.getExtendedStockList();
+            
+            this.stockListCache = fallbackList;
+            this.stockListCacheTime = Date.now();
+            
+            try {
+                localStorage.setItem('stockListCache', JSON.stringify(fallbackList));
+                localStorage.setItem('stockListCacheTime', Date.now().toString());
+            } catch (e) {
+                console.warn('localStorage缓存失败');
+            }
+            
+            return fallbackList;
+        } catch (error) {
+            console.error('获取股票列表失败:', error);
+        }
         
         try {
-            localStorage.setItem('stockListCache', JSON.stringify(fallbackList));
-            localStorage.setItem('stockListCacheTime', Date.now().toString());
+            const cached = localStorage.getItem('stockListCache');
+            if (cached) {
+                return JSON.parse(cached);
+            }
         } catch (e) {
-            console.warn('localStorage缓存失败');
+            console.warn('读取缓存失败');
         }
         
-        return fallbackList;
-    } catch (error) {
-        console.error('获取股票列表失败:', error);
+        return this.getFallbackStockList();
     }
-    
-    try {
-        const cached = localStorage.getItem('stockListCache');
-        if (cached) {
-            return JSON.parse(cached);
-        }
-    } catch (e) {
-        console.warn('读取缓存失败');
+
+    /**
+     * 搜索股票（使用本地列表搜索，避免CORS问题）
+     */
+    async searchStocks(keyword) {
+        if (!keyword || keyword.length < 1) return [];
+        
+        const lowerKeyword = keyword.toLowerCase();
+        
+        // 确保股票列表已加载
+        const stockList = await this.getStockList();
+        
+        // 本地过滤搜索
+        const results = stockList.filter(stock => 
+            stock.code.includes(keyword) || 
+            stock.name.toLowerCase().includes(lowerKeyword)
+        ).slice(0, 10);
+        
+        return results;
     }
-    
-    return this.getFallbackStockList();
-}
 
     /**
      * 获取单只股票详细信息
@@ -187,26 +210,6 @@ class StockAPI {
     }
 
     /**
- * 搜索股票（使用本地列表搜索，避免CORS问题）
- */
-async searchStocks(keyword) {
-    if (!keyword || keyword.length < 1) return [];
-    
-    const lowerKeyword = keyword.toLowerCase();
-    
-    // 确保股票列表已加载
-    const stockList = await this.getStockList();
-    
-    // 本地过滤搜索
-    const results = stockList.filter(stock => 
-        stock.code.includes(keyword) || 
-        stock.name.toLowerCase().includes(lowerKeyword)
-    ).slice(0, 10);
-    
-    return results;
-}
-
-    /**
      * 获取行业分类
      */
     async getIndustryStocks(industryCode) {
@@ -301,21 +304,10 @@ async searchStocks(keyword) {
             { code: '600900', name: '长江电力', market: 'SH' }
         ];
     }
-        getFallbackStockList() {
-        return [
-            { code: '600519', name: '贵州茅台', market: 'SH' },
-            { code: '000858', name: '五粮液', market: 'SZ' },
-            { code: '000333', name: '美的集团', market: 'SZ' },
-            { code: '600036', name: '招商银行', market: 'SH' },
-            { code: '601318', name: '中国平安', market: 'SH' },
-            { code: '002594', name: '比亚迪', market: 'SZ' },
-            { code: '300750', name: '宁德时代', market: 'SZ' },
-            { code: '601012', name: '隆基绿能', market: 'SH' },
-            { code: '601166', name: '兴业银行', market: 'SH' },
-            { code: '600900', name: '长江电力', market: 'SH' }
-        ];
-    }
 
+    /**
+     * 扩展股票列表（包含更多A股，避免CORS问题）
+     */
     getExtendedStockList() {
         return [
             // 白酒
