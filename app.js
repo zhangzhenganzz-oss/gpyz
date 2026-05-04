@@ -1,1162 +1,1558 @@
-/**
- * 价值投资分析系统 - 巴菲特·芒格投资理念
- * Value Investing Analysis System
- */
-
 // ==================== 数据定义 ====================
 
-// 股票API实例（在stock-api.js中定义）
-// let stockAPI = null;
+// A股股票数据（包含上市价格和信息）- 扩展至100+只股票
+const stocks = [
+    // 白酒/消费
+    { code: '600519', name: '贵州茅台', ipoPrice: 31.39, ipoYear: 2001, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 20.71, maxPrice: 2627.88 },
+    { code: '000858', name: '五粮液', ipoPrice: 14.77, ipoYear: 1998, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 5.95, maxPrice: 357.19 },
+    { code: '000568', name: '泸州老窖', ipoPrice: 5.83, ipoYear: 1994, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 5.83, maxPrice: 327.66 },
+    { code: '600809', name: '山西汾酒', ipoPrice: 3.76, ipoYear: 1994, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 3.76, maxPrice: 503.99 },
+    { code: '000596', name: '古井贡酒', ipoPrice: 8.48, ipoYear: 1996, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 8.48, maxPrice: 299.88 },
+    
+    // 金融
+    { code: '601318', name: '中国平安', ipoPrice: 33.80, ipoYear: 2007, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 19.90, maxPrice: 149.28 },
+    { code: '600036', name: '招商银行', ipoPrice: 7.30, ipoYear: 2002, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 5.86, maxPrice: 58.92 },
+    { code: '601166', name: '兴业银行', ipoPrice: 15.98, ipoYear: 2007, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 8.60, maxPrice: 70.5 },
+    { code: '601398', name: '工商银行', ipoPrice: 3.12, ipoYear: 2006, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 3.12, maxPrice: 7.41 },
+    { code: '601288', name: '农业银行', ipoPrice: 2.68, ipoYear: 2010, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 2.68, maxPrice: 4.82 },
+    { code: '601988', name: '中国银行', ipoPrice: 3.08, ipoYear: 2006, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 2.82, maxPrice: 5.43 },
+    { code: '601628', name: '中国人寿', ipoPrice: 18.88, ipoYear: 2007, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 12.88, maxPrice: 75.98 },
+    { code: '601601', name: '中国太保', ipoPrice: 30.00, ipoYear: 2007, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 8.92, maxPrice: 66.78 },
+    { code: '601336', name: '新华保险', ipoPrice: 23.25, ipoYear: 2011, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 15.86, maxPrice: 64.88 },
+    
+    // 新能源
+    { code: '300750', name: '宁德时代', ipoPrice: 25.14, ipoYear: 2018, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 30.17, maxPrice: 692 },
+    { code: '601012', name: '隆基绿能', ipoPrice: 21.00, ipoYear: 2012, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 5.59, maxPrice: 125.68 },
+    { code: '002594', name: '比亚迪', ipoPrice: 18.00, ipoYear: 2011, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 13.51, maxPrice: 416.98 },
+    { code: '300274', name: '阳光电源', ipoPrice: 10.80, ipoYear: 2011, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 8.28, maxPrice: 180.16 },
+    { code: '002812', name: '恩捷股份', ipoPrice: 6.65, ipoYear: 2016, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 6.65, maxPrice: 318.7 },
+    { code: '300014', name: '亿纬锂能', ipoPrice: 18.00, ipoYear: 2009, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 7.02, maxPrice: 152.9 },
+    { code: '603659', name: '璞泰来', ipoPrice: 16.53, ipoYear: 2017, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 16.53, maxPrice: 198.5 },
+    
+    // 家电/消费
+    { code: '000333', name: '美的集团', ipoPrice: 18.00, ipoYear: 2013, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 16.31, maxPrice: 108 },
+    { code: '000651', name: '格力电器', ipoPrice: 2.50, ipoYear: 1996, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 2.50, maxPrice: 70.56 },
+    { code: '600690', name: '海尔智家', ipoPrice: 7.38, ipoYear: 1993, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 4.28, maxPrice: 35.95 },
+    { code: '002032', name: '苏泊尔', ipoPrice: 12.21, ipoYear: 2004, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 6.60, maxPrice: 87.98 },
+    
+    // 医药
+    { code: '600276', name: '恒瑞医药', ipoPrice: 11.98, ipoYear: 2000, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 11.98, maxPrice: 116.87 },
+    { code: '603259', name: '药明康德', ipoPrice: 21.16, ipoYear: 2018, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 21.16, maxPrice: 188.28 },
+    { code: '300760', name: '迈瑞医疗', ipoPrice: 48.80, ipoYear: 2018, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 48.80, maxPrice: 502.0 },
+    { code: '600436', name: '片仔癀', ipoPrice: 8.55, ipoYear: 2003, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 8.55, maxPrice: 491.88 },
+    { code: '000538', name: '云南白药', ipoPrice: 3.38, ipoYear: 1993, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 3.38, maxPrice: 159.38 },
+    { code: '600196', name: '复星医药', ipoPrice: 7.15, ipoYear: 1998, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 7.15, maxPrice: 79.19 },
+    { code: '300015', name: '爱尔眼科', ipoPrice: 28.00, ipoYear: 2009, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 28.00, maxPrice: 72.27 },
+    { code: '300122', name: '智飞生物', ipoPrice: 37.98, ipoYear: 2010, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 37.98, maxPrice: 230.54 },
+    
+    // 科技/半导体
+    { code: '600601', name: '方正科技', ipoPrice: 2.50, ipoYear: 1990, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 1.68, maxPrice: 15.88 },
+    { code: '002371', name: '北方华创', ipoPrice: 33.00, ipoYear: 2010, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 33.00, maxPrice: 452.78 },
+    { code: '603501', name: '韦尔股份', ipoPrice: 7.02, ipoYear: 2017, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 7.02, maxPrice: 345.0 },
+    { code: '688981', name: '中芯国际', ipoPrice: 27.46, ipoYear: 2020, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 27.46, maxPrice: 95.5 },
+    { code: '603986', name: '兆易创新', ipoPrice: 23.26, ipoYear: 2016, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 23.26, maxPrice: 305.0 },
+    { code: '002049', name: '紫光国微', ipoPrice: 11.28, ipoYear: 2005, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 11.28, maxPrice: 236.88 },
+    { code: '300782', name: '卓胜微', ipoPrice: 35.29, ipoYear: 2019, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 35.29, maxPrice: 718.0 },
+    { code: '688008', name: '澜起科技', ipoPrice: 24.80, ipoYear: 2019, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 24.80, maxPrice: 128.0 },
+    { code: '600584', name: '长电科技', ipoPrice: 4.30, ipoYear: 2003, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 4.30, maxPrice: 52.88 },
+    { code: '002156', name: '通富微电', ipoPrice: 8.82, ipoYear: 2007, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 4.58, maxPrice: 35.66 },
+    
+    // 互联网/传媒
+    { code: '002027', name: '分众传媒', ipoPrice: 14.19, ipoYear: 2004, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 2.82, maxPrice: 19.16 },
+    { code: '300413', name: '芒果超媒', ipoPrice: 9.06, ipoYear: 2015, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 9.06, maxPrice: 92.88 },
+    { code: '002555', name: '三七互娱', ipoPrice: 32.00, ipoYear: 2011, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 4.58, maxPrice: 50.78 },
+    { code: '002624', name: '完美世界', ipoPrice: 28.00, ipoYear: 2016, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 7.88, maxPrice: 36.88 },
+    
+    // 电力/公用事业
+    { code: '600900', name: '长江电力', ipoPrice: 4.30, ipoYear: 2003, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 5.54, maxPrice: 32.28 },
+    { code: '601985', name: '中国核电', ipoPrice: 3.39, ipoYear: 2015, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 3.39, maxPrice: 12.88 },
+    { code: '600011', name: '华能国际', ipoPrice: 7.95, ipoYear: 2001, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 2.88, maxPrice: 12.88 },
+    { code: '600886', name: '国投电力', ipoPrice: 5.60, ipoYear: 1996, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 3.88, maxPrice: 18.88 },
+    
+    // 石油/化工
+    { code: '601857', name: '中国石油', ipoPrice: 16.70, ipoYear: 2007, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 4.04, maxPrice: 16.70 },
+    { code: '600028', name: '中国石化', ipoPrice: 4.22, ipoYear: 2001, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 2.88, maxPrice: 9.88 },
+    { code: '600309', name: '万华化学', ipoPrice: 11.28, ipoYear: 2001, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 11.28, maxPrice: 151.88 },
+    { code: '002460', name: '赣锋锂业', ipoPrice: 20.70, ipoYear: 2010, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 6.88, maxPrice: 224.4 },
+    { code: '002466', name: '天齐锂业', ipoPrice: 30.00, ipoYear: 2010, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 5.88, maxPrice: 143.0 },
+    
+    // 房地产/基建
+    { code: '000002', name: '万科A', ipoPrice: 1.00, ipoYear: 1991, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 1.00, maxPrice: 45.22 },
+    { code: '600048', name: '保利发展', ipoPrice: 13.95, ipoYear: 2006, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 6.88, maxPrice: 18.70 },
+    { code: '601668', name: '中国建筑', ipoPrice: 4.18, ipoYear: 2009, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 2.88, maxPrice: 12.88 },
+    { code: '601390', name: '中国中铁', ipoPrice: 4.80, ipoYear: 2007, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 2.88, maxPrice: 15.88 },
+    { code: '601186', name: '中国铁建', ipoPrice: 9.08, ipoYear: 2008, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 5.88, maxPrice: 16.88 },
+    
+    // 通信/运营商
+    { code: '600050', name: '中国联通', ipoPrice: 2.30, ipoYear: 2002, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 2.19, maxPrice: 13.50 },
+    { code: '600941', name: '中国移动', ipoPrice: 57.58, ipoYear: 2022, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 57.58, maxPrice: 103.00 },
+    { code: '601728', name: '中国电信', ipoPrice: 4.53, ipoYear: 2021, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 3.53, maxPrice: 6.66 },
+    { code: '000063', name: '中兴通讯', ipoPrice: 5.94, ipoYear: 1997, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 5.94, maxPrice: 56.50 },
+    
+    // 军工/航天
+    { code: '600893', name: '航发动力', ipoPrice: 7.00, ipoYear: 1997, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 4.88, maxPrice: 88.88 },
+    { code: '600760', name: '中航沈飞', ipoPrice: 14.88, ipoYear: 1996, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 4.88, maxPrice: 102.88 },
+    { code: '000768', name: '中航西飞', ipoPrice: 6.15, ipoYear: 1997, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 4.88, maxPrice: 45.88 },
+    { code: '600372', name: '中航电子', ipoPrice: 10.88, ipoYear: 2001, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 4.88, maxPrice: 35.88 },
+    
+    // 汽车/机械
+    { code: '601633', name: '长城汽车', ipoPrice: 13.00, ipoYear: 2011, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 5.88, maxPrice: 69.80 },
+    { code: '600104', name: '上汽集团', ipoPrice: 7.02, ipoYear: 1997, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 7.02, maxPrice: 33.58 },
+    { code: '000625', name: '长安汽车', ipoPrice: 6.36, ipoYear: 1997, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 2.88, maxPrice: 23.66 },
+    { code: '601238', name: '广汽集团', ipoPrice: 9.09, ipoYear: 2012, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 5.88, maxPrice: 22.88 },
+    { code: '600031', name: '三一重工', ipoPrice: 15.56, ipoYear: 2003, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 2.44, maxPrice: 50.30 },
+    { code: '000425', name: '徐工机械', ipoPrice: 2.50, ipoYear: 1996, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 2.50, maxPrice: 12.88 },
+    
+    // 煤炭/有色
+    { code: '601088', name: '中国神华', ipoPrice: 36.99, ipoYear: 2007, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 12.88, maxPrice: 44.88 },
+    { code: '601225', name: '陕西煤业', ipoPrice: 4.00, ipoYear: 2014, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 3.88, maxPrice: 28.88 },
+    { code: '601899', name: '紫金矿业', ipoPrice: 7.13, ipoYear: 2008, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 2.88, maxPrice: 22.88 },
+    { code: '603993', name: '洛阳钼业', ipoPrice: 3.00, ipoYear: 2012, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 1.91, maxPrice: 9.88 },
+    
+    // 食品饮料
+    { code: '600887', name: '伊利股份', ipoPrice: 5.95, ipoYear: 1996, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 5.95, maxPrice: 51.85 },
+    { code: '603288', name: '海天味业', ipoPrice: 31.25, ipoYear: 2014, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 31.25, maxPrice: 219.58 },
+    { code: '600298', name: '安琪酵母', ipoPrice: 11.88, ipoYear: 2000, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 11.88, maxPrice: 72.88 },
+    { code: '002507', name: '涪陵榨菜', ipoPrice: 13.99, ipoYear: 2010, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 13.99, maxPrice: 56.24 },
+    
+    // 其他热门
+    { code: '300059', name: '东方财富', ipoPrice: 40.58, ipoYear: 2010, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 0.58, maxPrice: 40.58 },
+    { code: '002230', name: '科大讯飞', ipoPrice: 12.66, ipoYear: 2008, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 12.66, maxPrice: 81.88 },
+    { code: '002415', name: '海康威视', ipoPrice: 68.00, ipoYear: 2010, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 26.10, maxPrice: 68.00 },
+    { code: '000725', name: '京东方A', ipoPrice: 16.80, ipoYear: 2001, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 1.61, maxPrice: 7.55 },
+    { code: '601888', name: '中国中免', ipoPrice: 11.78, ipoYear: 2009, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 11.78, maxPrice: 402.78 },
+    { code: '300124', name: '汇川技术', ipoPrice: 60.36, ipoYear: 2010, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 60.36, maxPrice: 89.05 },
+    { code: '002352', name: '顺丰控股', ipoPrice: 32.00, ipoYear: 2017, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 32.00, maxPrice: 124.70 },
+    { code: '601021', name: '春秋航空', ipoPrice: 18.16, ipoYear: 2015, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 18.16, maxPrice: 81.00 },
+    { code: '603288', name: '海天味业', ipoPrice: 31.25, ipoYear: 2014, currentIndex: 0, history: [], change: 0, changePercent: 0, minPrice: 31.25, maxPrice: 219.58 }
+];
 
-// 所有A股股票列表
-let allStocksList = [];
-
-// 是否已加载全部A股
-let isAllStocksLoaded = false;
-
-// 模拟股票数据（作为备用和演示数据）
-const stockDatabase = {
-    '600519': {
-        code: '600519',
-        name: '贵州茅台',
-        price: 1688.00,
-        change: 2.35,
-        // 财务指标
-        roe: 25.3,
-        roic: 18.7,
-        grossMargin: 91.5,
-        netMargin: 52.8,
-        debtRatio: 19.5,
-        fcf: 587,
-        // 估值参数
-        currentFCF: 587,
-        growthRate: 12,
-        terminalGrowth: 3,
-        discountRate: 9,
-        totalShares: 12.56,
-        // 护城河评分
-        moatScore: 85,
-        moatType: {
-            brand: { score: 45, max: 50, strength: 'strong' },
-            switching: { score: 20, max: 30, strength: 'medium' },
-            cost: { score: 15, max: 20, strength: 'weak' },
-            network: { score: 5, max: 15, strength: 'weak' }
-        },
-        // 质量评分
-        qualityScore: 92,
-        qualityDetails: {
-            profitability: 95,
-            stability: 98,
-            efficiency: 88,
-            growth: 85,
-            conservatism: 90
-        },
-        // 历史数据 (5年)
-        history: {
-            years: ['2021', '2022', '2023', '2024', '2025'],
-            revenue: [106, 124, 147, 150, 162],
-            profit: [52, 62, 74, 76, 82],
-            roe: [24.5, 25.1, 26.2, 24.8, 25.3],
-            fcf: [420, 485, 550, 565, 587]
-        }
-    },
-    '000858': {
-        code: '000858',
-        name: '五粮液',
-        price: 158.00,
-        change: 1.85,
-        roe: 22.1,
-        roic: 16.5,
-        grossMargin: 75.2,
-        netMargin: 38.5,
-        debtRatio: 22.3,
-        fcf: 245,
-        currentFCF: 245,
-        growthRate: 10,
-        terminalGrowth: 3,
-        discountRate: 9,
-        totalShares: 38.82,
-        moatScore: 78,
-        moatType: {
-            brand: { score: 40, max: 50, strength: 'strong' },
-            switching: { score: 15, max: 30, strength: 'medium' },
-            cost: { score: 12, max: 20, strength: 'medium' },
-            network: { score: 5, max: 15, strength: 'weak' }
-        },
-        qualityScore: 85,
-        qualityDetails: {
-            profitability: 88,
-            stability: 90,
-            efficiency: 82,
-            growth: 80,
-            conservatism: 85
-        },
-        history: {
-            years: ['2021', '2022', '2023', '2024', '2025'],
-            revenue: [66, 74, 83, 89, 95],
-            profit: [23, 26, 30, 33, 36],
-            roe: [21.5, 22.0, 22.8, 21.9, 22.1],
-            fcf: [180, 205, 225, 238, 245]
-        }
-    },
-    '000333': {
-        code: '000333',
-        name: '美的集团',
-        price: 62.00,
-        change: -0.52,
-        roe: 18.5,
-        roic: 12.3,
-        grossMargin: 25.8,
-        netMargin: 8.2,
-        debtRatio: 42.5,
-        fcf: 320,
-        currentFCF: 320,
-        growthRate: 8,
-        terminalGrowth: 3,
-        discountRate: 10,
-        totalShares: 69.97,
-        moatScore: 65,
-        moatType: {
-            brand: { score: 25, max: 50, strength: 'medium' },
-            switching: { score: 10, max: 30, strength: 'weak' },
-            cost: { score: 18, max: 20, strength: 'strong' },
-            network: { score: 8, max: 15, strength: 'medium' }
-        },
-        qualityScore: 78,
-        qualityDetails: {
-            profitability: 75,
-            stability: 82,
-            efficiency: 80,
-            growth: 75,
-            conservatism: 78
-        },
-        history: {
-            years: ['2021', '2022', '2023', '2024', '2025'],
-            revenue: [343, 345, 373, 385, 402],
-            profit: [28, 29, 33, 35, 37],
-            roe: [19.2, 18.8, 19.5, 18.2, 18.5],
-            fcf: [280, 295, 310, 318, 320]
-        }
-    }
+// 初始化用户数据
+let userData = {
+    balance: 100000.00,
+    holdings: {},
+    history: [],
+    initialBalance: 100000.00,
+    stopOrders: [],
+    achievements: []
 };
 
-// 投资组合数据
-let portfolio = {
-    holdings: [
-        { code: '600519', name: '贵州茅台', amount: 100, costPrice: 1200 },
-        { code: '000858', name: '五粮液', amount: 200, costPrice: 120 },
-        { code: '000333', name: '美的集团', amount: 500, costPrice: 55 }
-    ],
-    cash: 500000
-};
+// 全局变量
+let selectedStockCode = null;
+let currentTradeType = 'buy';  // 当前交易类型：buy 或 sell
+let priceChart = null;
+let volumeChart = null;
+let assetChart = null;
+let updateInterval = null;
+let assetHistory = [];
+let pendingOrders = [];
+let orderIdCounter = 1;
+let currentSortField = 'code';
+let activeIndicators = { price: true, ma: false, macd: false, vol: false };
 
-// 当前选中的股票
-let currentStock = stockDatabase['600519'];
+// 模拟交易时间
+let simYear = 2026;
+let simMonth = 1;
+let simDay = 1;
+let isTradingTime = true;
 
-// 图表实例
-let financialChart = null;
-let moatRadarChart = null;
-let moatTrendChart = null;
-let sensitivityChart = null;
-let sectorChart = null;
-let moatDistributionChart = null;
+// 成就定义
+const achievementsList = [
+    { id: 'first_trade', name: '初出茅庐', desc: '完成第一笔交易', icon: '🎯' },
+    { id: 'first_profit', name: '首笔盈利', desc: '第一笔交易盈利', icon: '💰' },
+    { id: 'profit_10k', name: '万元户', desc: '累计盈利达到1万', icon: '💎' },
+    { id: 'profit_50k', name: '小有成就', desc: '累计盈利达到5万', icon: '🏆' },
+    { id: 'double_assets', name: '资产翻倍', desc: '总资产达到初始2倍', icon: '🚀' },
+    { id: 'trade_10', name: '交易达人', desc: '完成10笔交易', icon: '⚡' },
+    { id: 'trade_50', name: '交易狂人', desc: '完成50笔交易', icon: '🔥' },
+    { id: 'hold_5', name: '分散投资', desc: '同时持有5只股票', icon: '📊' },
+    { id: 'stop_loss', name: '风险控制', desc: '成功执行止损', icon: '🛡️' },
+    { id: 'take_profit', name: '见好就收', desc: '成功执行止盈', icon: '✅' }
+];
 
 // ==================== 初始化 ====================
 
 document.addEventListener('DOMContentLoaded', function() {
-    // stockAPI已在stock-api.js中初始化，直接使用即可
+    try {
+        loadUserData();
+        initializeStocks();
+        renderStockList();
+        updateAccountInfo();
+        updateHoldings();
+        updateOrders();
+        updateStopOrders();
+        updateTradeHistory();
+        updateAchievements();
+        initAssetChart();
+    } catch (error) {
+        console.error('初始化出错:', error);
+    }
     
-    initNavigation();
-    initStockSearch();
-    initDCFCalculator();
-    initChecklist();
-    initLoadAllStocks();
-    loadStockData(currentStock.code);
-    initCharts();
+    // 确保价格更新定时器一定会被启动
+    startPriceUpdates();
+    
+    updateClock();
+    setInterval(updateClock, 1000);
+    setupKeyboardShortcuts();
+    updateSimDate();
+    console.log('页面初始化完成！');
 });
 
-// ==================== 导航功能 ====================
+// ==================== 数据持久化 ====================
 
-function initNavigation() {
-    const tabs = document.querySelectorAll('.nav-tab');
-    const panels = document.querySelectorAll('.panel');
+function loadUserData() {
+    const saved = localStorage.getItem('stockGameData');
+    if (saved) {
+        try {
+            const savedData = JSON.parse(saved);
+            userData = savedData.userData || userData;
+            
+            // 确保必要的属性存在（兼容旧数据）
+            if (!userData.stopOrders) userData.stopOrders = [];
+            if (!userData.achievements) userData.achievements = [];
+            if (!userData.holdings) userData.holdings = {};
+            if (!userData.history) userData.history = [];
+            
+            pendingOrders = savedData.pendingOrders || [];
+            orderIdCounter = savedData.orderIdCounter || 1;
+            assetHistory = savedData.assetHistory || [];
+        } catch (error) {
+            console.error('加载用户数据失败:', error);
+            // 使用默认数据
+        }
+    }
+}
+
+function saveUserData() {
+    const dataToSave = {
+        userData: userData,
+        pendingOrders: pendingOrders,
+        orderIdCounter: orderIdCounter,
+        assetHistory: assetHistory.slice(-500)
+    };
+    localStorage.setItem('stockGameData', JSON.stringify(dataToSave));
+}
+
+// ==================== 股票历史数据生成 ====================
+
+function initializeStocks() {
+    stocks.forEach(stock => {
+        const dataPoints = 2000;
+        stock.history = [];
+        // 使用阈值范围的中间值作为起始价格
+        const midPrice = (stock.minPrice + stock.maxPrice) / 2;
+        let price = midPrice;
+        const now = Date.now();
+        
+        // 生成随机波动的价格序列，包含均值回归
+        for (let i = 0; i < dataPoints; i++) {
+            const time = now - (dataPoints - i) * 1000;
+            
+            // 均值回归：价格倾向于回归到中间值
+            const meanReversion = (midPrice - price) * 0.01;
+            const noise = (Math.random() - 0.5) * 2;
+            
+            let newPrice = price + meanReversion + noise;
+            
+            // 涨跌停限制
+            const limitUp = price * 1.1;
+            const limitDown = price * 0.9;
+            newPrice = Math.max(limitDown, Math.min(limitUp, newPrice));
+            
+            // 使用股票设定的阈值范围
+            newPrice = Math.max(stock.minPrice, Math.min(stock.maxPrice, newPrice));
+            
+            price = newPrice;
+            stock.history.push({ time: time, price: price, volume: Math.floor(Math.random() * 1000000) + 100000 });
+        }
+        
+        stock.currentIndex = 0;
+        stock.price = stock.history[0].price;
+        stock.change = 0;
+        stock.changePercent = 0;
+    });
+}
+
+// ==================== 功能1: 止损止盈 ====================
+
+// 旧函数已删除，使用 executeOrder() 替代
+
+function checkStopOrders() {
+    // 确保 stopOrders 是数组
+    if (!Array.isArray(userData.stopOrders)) {
+        userData.stopOrders = [];
+        return;
+    }
     
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            const targetTab = tab.dataset.tab;
-            
-            // 更新标签状态
-            tabs.forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            
-            // 更新面板显示
-            panels.forEach(panel => {
-                panel.classList.remove('active');
-                if (panel.id === targetTab + 'Panel') {
-                    panel.classList.add('active');
+    let hasExecution = false;
+    
+    userData.stopOrders = userData.stopOrders.filter(order => {
+        const stock = stocks.find(s => s.code === order.stockCode);
+        if (!stock) return true;
+        
+        let shouldSell = false;
+        let reason = '';
+        
+        if (order.stopLoss && stock.price <= order.stopLoss) {
+            shouldSell = true;
+            reason = '止损';
+        }
+        if (order.takeProfit && stock.price >= order.takeProfit) {
+            shouldSell = true;
+            reason = '止盈';
+        }
+        
+        if (shouldSell) {
+            executeStopOrder(order, reason);
+            hasExecution = true;
+            return false;
+        }
+        return true;
+    });
+    
+    if (hasExecution) {
+        updateAccountInfo();
+        updateHoldings();
+        updateStopOrders();
+    }
+}
+
+function executeStopOrder(order, reason) {
+    const stock = stocks.find(s => s.code === order.stockCode);
+    const totalValue = stock.price * order.amount;
+    
+    userData.balance += totalValue;
+    const holding = userData.holdings[order.stockCode];
+    holding.amount -= order.amount;
+    holding.totalCost = holding.avgPrice * holding.amount;
+    if (holding.amount === 0) delete userData.holdings[order.stockCode];
+    
+    userData.history.unshift({
+        time: new Date().toLocaleString('zh-CN'),
+        type: 'sell',
+        stock: order.stockCode,
+        name: order.stockName,
+        amount: order.amount,
+        price: stock.price,
+        total: totalValue,
+        isStopOrder: true,
+        reason: reason
+    });
+    
+    if (userData.history.length > 50) userData.history = userData.history.slice(0, 50);
+    
+    showNotification(`${reason}触发！已卖出 ${order.stockCode} ${order.amount}股，价格: ¥${stock.price.toFixed(2)}`);
+    saveUserData();
+    
+    // 成就检查
+    if (reason === '止损') checkAchievement('stop_loss');
+    if (reason === '止盈') checkAchievement('take_profit');
+}
+
+function updateStopOrders() {
+    const list = document.getElementById('stopOrdersList');
+    if (userData.stopOrders.length === 0) {
+        list.innerHTML = '<p class="empty">暂无设置</p>';
+        return;
+    }
+    
+    list.innerHTML = '';
+    userData.stopOrders.forEach(order => {
+        const stock = stocks.find(s => s.code === order.stockCode);
+        const currentPrice = stock ? stock.price.toFixed(2) : '--';
+        const item = document.createElement('div');
+        item.className = 'order-item';
+        item.innerHTML = `
+            <div class="order-info">
+                <span style="font-weight:bold;">${order.stockCode}</span>
+                <span>${order.amount}股</span>
+                ${order.stopLoss ? `<span style="color:#ff9800;">止损:¥${order.stopLoss.toFixed(2)}</span>` : ''}
+                ${order.takeProfit ? `<span style="color:#4caf50;">止盈:¥${order.takeProfit.toFixed(2)}</span>` : ''}
+                <span>当前:¥${currentPrice}</span>
+            </div>
+        `;
+        list.appendChild(item);
+    });
+}
+
+// ==================== 功能2: 资金曲线图 ====================
+
+function initAssetChart() {
+    const ctx = document.getElementById('assetChart').getContext('2d');
+    const labels = assetHistory.map(h => h.time);
+    const data = assetHistory.map(h => h.assets);
+    
+    assetChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: '总资产',
+                data: data,
+                borderColor: '#667eea',
+                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: {
+                    ticks: { callback: v => '¥' + v.toFixed(0) }
+                },
+                x: {
+                    ticks: { maxTicksLimit: 10, maxRotation: 0 }
+                }
+            }
+        }
+    });
+}
+
+function updateAssetHistory() {
+    let totalAssets = userData.balance;
+    Object.keys(userData.holdings).forEach(code => {
+        const holding = userData.holdings[code];
+        const stock = stocks.find(s => s.code === code);
+        if (stock) totalAssets += stock.price * holding.amount;
+    });
+    
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+    
+    assetHistory.push({ time: timeStr, assets: totalAssets });
+    if (assetHistory.length > 100) assetHistory = assetHistory.slice(-100);
+    
+    if (assetChart) {
+        assetChart.data.labels = assetHistory.map(h => h.time);
+        assetChart.data.datasets[0].data = assetHistory.map(h => h.assets);
+        assetChart.update('none');
+    }
+}
+
+// ==================== 功能3: 股票搜索/筛选 ====================
+
+function filterStocks() {
+    const keyword = document.getElementById('searchInput').value.toLowerCase();
+    renderStockList(keyword);
+}
+
+function sortStocks(field) {
+    currentSortField = field;
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.includes(field === 'code' ? '代码' : field === 'price' ? '价格' : '涨跌'));
+    });
+    renderStockList();
+}
+
+function renderStockList(keyword = '') {
+    const stockList = document.getElementById('stockList');
+    stockList.innerHTML = '';
+    
+    let filteredStocks = stocks.filter(s => 
+        s.code.toLowerCase().includes(keyword) || 
+        s.name.toLowerCase().includes(keyword)
+    );
+    
+    // 排序
+    filteredStocks.sort((a, b) => {
+        if (currentSortField === 'code') return a.code.localeCompare(b.code);
+        if (currentSortField === 'price') return b.price - a.price;
+        if (currentSortField === 'change') return b.changePercent - a.changePercent;
+    });
+    
+    filteredStocks.forEach(stock => {
+        const item = document.createElement('div');
+        item.className = 'stock-item' + (selectedStockCode === stock.code ? ' active' : '');
+        item.onclick = () => selectStock(stock.code);
+        
+        const changeClass = stock.change >= 0 ? 'positive' : 'negative';
+        const changeSign = stock.change >= 0 ? '+' : '';
+        const isLimitUp = stock.changePercent >= 9.9;
+        const isLimitDown = stock.changePercent <= -9.9;
+        
+        item.innerHTML = `
+            <div class="stock-header">
+                <span class="stock-code">${stock.code}</span>
+                <span class="stock-name">${stock.name}</span>
+                ${isLimitUp ? '<span class="limit-badge up">涨停</span>' : ''}
+                ${isLimitDown ? '<span class="limit-badge down">跌停</span>' : ''}
+            </div>
+            <div class="stock-price">¥${stock.price.toFixed(2)}</div>
+            <div class="stock-change ${changeClass}">
+                ${changeSign}${stock.change.toFixed(2)} (${changeSign}${stock.changePercent.toFixed(2)}%)
+            </div>
+        `;
+        stockList.appendChild(item);
+    });
+}
+
+// ==================== 功能4: 快捷键支持 ====================
+
+function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', function(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        
+        const key = e.key.toLowerCase();
+        
+        // B: 买入
+        if (key === 'b') {
+            e.preventDefault();
+            executeTrade('buy');
+        }
+        // S: 卖出
+        else if (key === 's') {
+            e.preventDefault();
+            executeTrade('sell');
+        }
+        // 1-0: 快速选择股票
+        else if (key >= '1' && key <= '9') {
+            e.preventDefault();
+            const index = parseInt(key) - 1;
+            if (index < stocks.length) selectStock(stocks[index].code);
+        }
+        // 0: 选择第10只股票
+        else if (key === '0') {
+            e.preventDefault();
+            if (stocks.length >= 10) selectStock(stocks[9].code);
+        }
+        // ESC: 清空选择
+        else if (key === 'escape') {
+            selectedStockCode = null;
+            renderStockList();
+            document.getElementById('selectedStock').textContent = '请选择股票';
+        }
+        // H: 显示快捷键帮助
+        else if (key === 'h') {
+            e.preventDefault();
+            showShortcutHelp();
+        }
+    });
+}
+
+function showShortcutHelp() {
+    alert('快捷键帮助:\nB - 买入\nS - 卖出\n1-9 - 选择股票\n0 - 第10只股票\nESC - 清空选择\nH - 显示此帮助');
+}
+
+// ==================== 功能5: 技术指标 ====================
+
+function toggleIndicator(type) {
+    activeIndicators[type] = !activeIndicators[type];
+    document.querySelectorAll('.indicator-btn').forEach(btn => {
+        const btnType = btn.textContent.toLowerCase();
+        if (btnType.includes('价格') || btnType.includes('ma') || btnType.includes('macd') || btnType.includes('成交')) {
+            const typeMap = { '价格': 'price', 'ma': 'ma', 'macd': 'macd', '成交': 'vol' };
+            Object.keys(typeMap).forEach(k => {
+                if (btn.textContent.toLowerCase().includes(k)) {
+                    btn.classList.toggle('active', activeIndicators[typeMap[k]]);
                 }
             });
-            
-            // 如果切换到护城河面板，更新图表
-            if (targetTab === 'moat' && moatRadarChart) {
-                updateMoatCharts();
-            }
-        });
-    });
-}
-
-function switchTab(tabName) {
-    const tab = document.querySelector(`[data-tab="${tabName}"]`);
-    if (tab) {
-        tab.click();
-    }
-}
-
-// ==================== 股票搜索功能 ====================
-
-let searchTimeout = null;
-let stockListLoaded = false;
-
-function initStockSearch() {
-    const searchBtn = document.getElementById('searchBtn');
-    const searchInput = document.getElementById('stockSearch');
-    const recentList = document.getElementById('recentList');
-    
-    // 搜索按钮点击
-    searchBtn.addEventListener('click', () => {
-        const keyword = searchInput.value.trim();
-        if (keyword) {
-            performSearch(keyword);
         }
     });
-    
-    // 输入实时搜索（防抖）
-    searchInput.addEventListener('input', (e) => {
-        clearTimeout(searchTimeout);
-        const keyword = e.target.value.trim();
-        
-        if (keyword.length >= 1) {
-            searchTimeout = setTimeout(() => {
-                performSearch(keyword);
-            }, 200);
+    // 重新初始化图表以正确显示/隐藏指标
+    if (selectedStockCode) initChart();
+}
+
+function calculateMA(prices, period) {
+    const result = [];
+    for (let i = 0; i < prices.length; i++) {
+        if (i < period - 1) {
+            result.push(null);
         } else {
-            hideSearchResults();
+            let sum = 0;
+            for (let j = 0; j < period; j++) sum += prices[i - j];
+            result.push(sum / period);
         }
+    }
+    return result;
+}
+
+function calculateMACD(prices) {
+    const ema12 = calculateEMA(prices, 12);
+    const ema26 = calculateEMA(prices, 26);
+    const dif = ema12.map((v, i) => v - ema26[i]);
+    const dea = calculateEMA(dif, 9);
+    const macd = dif.map((v, i) => (v - dea[i]) * 2);
+    return { dif, dea, macd };
+}
+
+function calculateEMA(prices, period) {
+    const result = [];
+    const k = 2 / (period + 1);
+    result[0] = prices[0];
+    for (let i = 1; i < prices.length; i++) {
+        result[i] = prices[i] * k + result[i - 1] * (1 - k);
+    }
+    return result;
+}
+
+function initChart() {
+    const stock = stocks.find(s => s.code === selectedStockCode);
+    if (!stock) return;
+    
+    const ctx = document.getElementById('priceChart').getContext('2d');
+    // 根据currentIndex获取对应的数据窗口
+    const startIndex = Math.max(0, stock.currentIndex - 99);
+    const endIndex = stock.currentIndex + 1;
+    const recentHistory = stock.history.slice(startIndex, endIndex);
+    
+    const labels = recentHistory.map(h => {
+        const date = new Date(h.time);
+        return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
     });
+    const prices = recentHistory.map(h => h.price);
     
-    // 回车搜索
-    searchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            const keyword = searchInput.value.trim();
-            if (keyword) {
-                performSearch(keyword);
-            }
-        }
-    });
-    
-    // 点击外部隐藏搜索结果
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.search-section')) {
-            hideSearchResults();
-        }
-    });
-    
-    // 最近分析列表点击
-    recentList.addEventListener('click', (e) => {
-        if (e.target.tagName === 'LI') {
-            const code = e.target.dataset.code;
-            if (code) {
-                loadStockByCode(code);
-            }
-        }
-    });
-    
-    // 预加载股票列表（轻量级）
-    preloadStockList();
-}
-
-// 预加载股票列表（只加载代码和名称）
-async function preloadStockList() {
-    if (stockListLoaded) return;
-    
-    try {
-        if (stockAPI) {
-            const stocks = await stockAPI.getStockList();
-            allStocksList = stocks;
-            stockListLoaded = true;
-            
-            // 更新UI
-            const countEl = document.getElementById('stockCount');
-            if (countEl) {
-                countEl.textContent = `已加载 ${stocks.length} 只股票`;
-            }
-            
-            console.log(`股票列表已加载: ${stocks.length} 只`);
-        }
-    } catch (error) {
-        console.error('预加载股票列表失败:', error);
-    }
-}
-
-// 执行搜索（优先本地搜索，无结果时调用API）
-async function performSearch(keyword) {
-    const searchResults = document.getElementById('searchResults');
-    
-    // 先尝试本地搜索
-    if (stockListLoaded && allStocksList.length > 0) {
-        const localResults = searchInLocalStocks(keyword);
-        if (localResults.length > 0) {
-            displaySearchResults(localResults);
-            return;
-        }
-    }
-    
-    // 本地无结果，调用API搜索
-    searchResults.innerHTML = '<div class="search-result-item"><span class="loading-spinner"></span>正在搜索...</div>';
-    searchResults.classList.add('active');
-    
-    try {
-        if (stockAPI) {
-            const apiResults = await stockAPI.searchStocks(keyword);
-            if (apiResults && apiResults.length > 0) {
-                // 转换API结果格式
-                const formattedResults = apiResults.map(item => ({
-                    code: item.code,
-                    name: item.name,
-                    market: item.market || (item.code.startsWith('6') ? 'SH' : 'SZ'),
-                    loaded: false
-                }));
-                displaySearchResults(formattedResults);
-                
-                // 同时添加到allStocksList缓存
-                apiResults.forEach(item => {
-                    if (!allStocksList.find(s => s.code === item.code)) {
-                        allStocksList.push({
-                            code: item.code,
-                            name: item.name,
-                            market: item.market || (item.code.startsWith('6') ? 'SH' : 'SZ')
-                        });
-                    }
-                });
-                return;
-            }
-        }
-    } catch (error) {
-        console.error('API搜索失败:', error);
-    }
-    
-    // 都无结果
-    displaySearchResults([]);
-}
-
-// 在本地股票列表中搜索
-function searchInLocalStocks(keyword) {
-    const lowerKeyword = keyword.toLowerCase();
-    let results = [];
-    
-    // 先从stockDatabase搜索（已加载详细数据的股票）
-    const dbResults = Object.values(stockDatabase).filter(stock => 
-        stock.code.includes(keyword) || 
-        stock.name.toLowerCase().includes(lowerKeyword)
-    ).map(stock => ({
-        code: stock.code,
-        name: stock.name,
-        market: stock.code.startsWith('6') ? 'SH' : 'SZ',
-        loaded: true // 标记已加载详细数据
-    }));
-    
-    results = [...dbResults];
-    
-    // 再从allStocksList搜索
-    if (allStocksList.length > 0) {
-        const listResults = allStocksList.filter(stock => 
-            stock.code.includes(keyword) || 
-            stock.name.toLowerCase().includes(lowerKeyword)
-        ).slice(0, 10);
-        
-        // 合并结果，去重
-        const existingCodes = new Set(results.map(r => r.code));
-        listResults.forEach(stock => {
-            if (!existingCodes.has(stock.code)) {
-                results.push({
-                    ...stock,
-                    loaded: false // 标记未加载详细数据
-                });
-            }
-        });
-    }
-    
-    return results.slice(0, 10);
-}
-
-// 显示搜索结果
-function displaySearchResults(results) {
-    const searchResults = document.getElementById('searchResults');
-    
-    if (!results || results.length === 0) {
-        searchResults.innerHTML = '<div class="search-result-item">未找到匹配的股票</div>';
-        searchResults.classList.add('active');
-        return;
-    }
-    
-    searchResults.innerHTML = results.map(stock => {
-        const isLoaded = stock.loaded || stockDatabase[stock.code];
-        const loadedBadge = isLoaded ? '<span class="loaded-badge" title="已加载">✓</span>' : '';
-        
-        return `
-        <div class="search-result-item" data-code="${stock.code}">
-            <span class="search-result-code">${stock.code}</span>
-            <span class="search-result-name">${stock.name} ${loadedBadge}</span>
-            <span class="search-result-market">${stock.market || (stock.code.startsWith('6') ? 'SH' : 'SZ')}</span>
-        </div>
-    `}).join('');
-    
-    searchResults.classList.add('active');
-    
-    // 添加点击事件
-    searchResults.querySelectorAll('.search-result-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const code = item.dataset.code;
-            loadStockByCode(code);
-            hideSearchResults();
-        });
-    });
-}
-
-// 隐藏搜索结果
-function hideSearchResults() {
-    const searchResults = document.getElementById('searchResults');
-    searchResults.classList.remove('active');
-}
-
-// 根据代码加载股票（按需加载）
-async function loadStockByCode(code) {
-    // 先检查本地数据库（已加载的）
-    if (stockDatabase[code]) {
-        loadStockData(code);
-        return;
-    }
-    
-    // 从allStocksList查找基本信息
-    const stockInfo = allStocksList.find(s => s.code === code);
-    if (!stockInfo) {
-        alert('未找到该股票');
-        return;
-    }
-    
-    // 显示加载状态
-    showLoading(`正在加载 ${stockInfo.name}(${code}) 的数据...`);
-    
-    // 从API获取详细数据（按需加载）
-    if (stockAPI) {
-        try {
-            const detail = await stockAPI.getStockDetail(code);
-            
-            if (detail) {
-                // 添加到本地数据库
-                stockDatabase[code] = createStockFromAPIData(detail);
-                
-                hideLoading();
-                loadStockData(code);
-                
-                // 添加到最近分析列表
-                addToRecentList(code, stockInfo.name);
-                
-                console.log(`股票 ${code} 数据已加载并缓存`);
-            } else {
-                hideLoading();
-                alert('获取股票数据失败');
-            }
-        } catch (error) {
-            hideLoading();
-            console.error('加载股票详情失败:', error);
-            alert('加载股票数据失败，请稍后重试');
-        }
-    } else {
-        hideLoading();
-        alert('API未初始化');
-    }
-}
-
-// 从API数据创建股票对象
-function createStockFromAPIData(apiData) {
-    return {
-        code: apiData.code,
-        name: apiData.name,
-        price: apiData.price || 0,
-        change: apiData.change || 0,
-        roe: apiData.roe || 15,
-        roic: apiData.roic || 12,
-        grossMargin: apiData.grossMargin || 30,
-        netMargin: apiData.netMargin || 15,
-        debtRatio: apiData.debtRatio || 40,
-        fcf: apiData.fcf || 50,
-        currentFCF: apiData.fcf || 50,
-        growthRate: 8,
-        terminalGrowth: 3,
-        discountRate: 9,
-        totalShares: 10,
-        moatScore: calculateMoatScore(apiData),
-        moatType: {
-            brand: { score: 25, max: 50, strength: 'medium' },
-            switching: { score: 15, max: 30, strength: 'medium' },
-            cost: { score: 15, max: 20, strength: 'strong' },
-            network: { score: 5, max: 15, strength: 'weak' }
-        },
-        qualityScore: calculateQualityScore(apiData),
-        qualityDetails: {
-            profitability: apiData.roe > 20 ? 90 : 70,
-            stability: 75,
-            efficiency: apiData.roic > 15 ? 85 : 65,
-            growth: 70,
-            conservatism: apiData.debtRatio < 50 ? 85 : 60
-        },
-        history: generateMockHistory()
-    };
-}
-
-// 计算护城河评分（基于财务指标估算）
-function calculateMoatScore(data) {
-    let score = 50; // 基础分
-    
-    // 高ROE可能表示有护城河
-    if (data.roe > 20) score += 15;
-    else if (data.roe > 15) score += 10;
-    else if (data.roe > 10) score += 5;
-    
-    // 高毛利率
-    if (data.grossMargin > 50) score += 10;
-    else if (data.grossMargin > 30) score += 5;
-    
-    // 稳定的净利率
-    if (data.netMargin > 20) score += 10;
-    else if (data.netMargin > 10) score += 5;
-    
-    // 低负债率表示财务稳健
-    if (data.debtRatio < 30) score += 5;
-    
-    return Math.min(100, score);
-}
-
-// 计算质量评分
-function calculateQualityScore(data) {
-    let score = 60; // 基础分
-    
-    if (data.roe > 20) score += 15;
-    else if (data.roe > 15) score += 10;
-    else if (data.roe > 10) score += 5;
-    
-    if (data.roic > 15) score += 10;
-    else if (data.roic > 10) score += 5;
-    
-    if (data.grossMargin > 40) score += 5;
-    if (data.netMargin > 15) score += 5;
-    if (data.debtRatio < 40) score += 5;
-    
-    return Math.min(100, score);
-}
-
-// 生成模拟历史数据
-function generateMockHistory() {
-    const years = ['2021', '2022', '2023', '2024', '2025'];
-    return {
-        years: years,
-        revenue: [80, 90, 100, 110, 120],
-        profit: [15, 18, 22, 25, 28],
-        roe: [15, 16, 17, 16.5, 17],
-        fcf: [12, 15, 18, 20, 22]
-    };
-}
-
-// 添加到最近列表
-function addToRecentList(code, name) {
-    const recentList = document.getElementById('recentList');
-    
-    // 检查是否已存在
-    const existingItem = recentList.querySelector(`[data-code="${code}"]`);
-    if (existingItem) {
-        // 移到最前面
-        recentList.insertBefore(existingItem, recentList.firstChild);
-        return;
-    }
-    
-    // 创建新项
-    const li = document.createElement('li');
-    li.dataset.code = code;
-    li.textContent = `${name} (${code})`;
-    recentList.insertBefore(li, recentList.firstChild);
-    
-    // 限制数量
-    while (recentList.children.length > 10) {
-        recentList.removeChild(recentList.lastChild);
-    }
-}
-
-// 初始化加载按钮（按需加载模式）
-function initLoadAllStocks() {
-    const loadBtn = document.getElementById('loadAllStocks');
-    if (!loadBtn) return;
-    
-    // 更新按钮文字说明
-    loadBtn.textContent = '刷新列表';
-    
-    loadBtn.addEventListener('click', async () => {
-        loadBtn.disabled = true;
-        loadBtn.innerHTML = '<span class="loading-spinner"></span>刷新中...';
-        
-        try {
-            if (stockAPI) {
-                // 清除缓存，强制重新加载
-                stockAPI.stockListCache = null;
-                stockAPI.stockListCacheTime = null;
-                
-                const stocks = await stockAPI.getStockList();
-                allStocksList = stocks;
-                stockListLoaded = true;
-                
-                document.getElementById('stockCount').textContent = `已加载 ${stocks.length} 只股票`;
-                loadBtn.textContent = '刷新列表';
-                
-                console.log(`股票列表已刷新: ${stocks.length} 只`);
-            }
-        } catch (error) {
-            console.error('刷新股票列表失败:', error);
-            loadBtn.textContent = '刷新失败';
-        } finally {
-            loadBtn.disabled = false;
-        }
-    });
-    
-    // 检查localStorage缓存
-    try {
-        const cachedStocks = localStorage.getItem('stockListCache');
-        const cachedTime = localStorage.getItem('stockListCacheTime');
-        
-        if (cachedStocks && cachedTime) {
-            const age = Date.now() - parseInt(cachedTime);
-            if (age < 24 * 60 * 60 * 1000) { // 24小时内
-                allStocksList = JSON.parse(cachedStocks);
-                stockListLoaded = true;
-                document.getElementById('stockCount').textContent = `已加载 ${allStocksList.length} 只股票`;
-                console.log(`从缓存恢复股票列表: ${allStocksList.length} 只`);
-            }
-        }
-    } catch (e) {
-        console.warn('读取缓存失败');
-    }
-}
-
-// 显示加载提示
-function showLoading(message) {
-    // 可以添加一个全局加载遮罩
-    console.log('Loading:', message);
-}
-
-function hideLoading() {
-    console.log('Loading complete');
-}
-
-function loadStockData(code) {
-    currentStock = stockDatabase[code];
-    if (!currentStock) return;
-    
-    // 更新股票基本信息
-    document.getElementById('stockName').textContent = currentStock.name;
-    document.getElementById('stockCode').textContent = currentStock.code + '.SH';
-    document.getElementById('currentPrice').textContent = '¥' + currentStock.price.toFixed(2);
-    
-    const changeEl = document.getElementById('priceChange');
-    changeEl.textContent = (currentStock.change >= 0 ? '+' : '') + currentStock.change + '%';
-    changeEl.className = 'change ' + (currentStock.change >= 0 ? 'positive' : 'negative');
-    
-    // 更新仪表盘
-    document.getElementById('qualityScore').textContent = currentStock.qualityScore;
-    document.getElementById('moatScore').textContent = currentStock.moatScore;
-    
-    // 计算并更新安全边际
-    const intrinsicValue = calculateDCF(currentStock);
-    const margin = ((intrinsicValue - currentStock.price) / intrinsicValue * 100);
-    document.getElementById('marginScore').textContent = margin.toFixed(1) + '%';
-    document.getElementById('intrinsicValue').textContent = '¥' + intrinsicValue.toFixed(0);
-    
-    // 更新财务指标
-    document.getElementById('roe').textContent = currentStock.roe + '%';
-    document.getElementById('roic').textContent = currentStock.roic + '%';
-    document.getElementById('grossMargin').textContent = currentStock.grossMargin + '%';
-    document.getElementById('netMargin').textContent = currentStock.netMargin + '%';
-    document.getElementById('debtRatio').textContent = currentStock.debtRatio + '%';
-    document.getElementById('fcf').textContent = '¥' + currentStock.fcf + '亿';
-    
-    // 更新图表
-    updateFinancialChart();
-    updateMoatCharts();
-    updateValuationPanel();
-    
-    // 更新时间
-    document.getElementById('updateTime').textContent = new Date().toLocaleDateString('zh-CN');
-}
-
-// ==================== DCF估值计算 ====================
-
-function calculateDCF(stock) {
-    const fcf = stock.currentFCF; // 亿元
-    const growthRate = stock.growthRate / 100;
-    const terminalGrowth = stock.terminalGrowth / 100;
-    const discountRate = stock.discountRate / 100;
-    const shares = stock.totalShares; // 亿股
-    
-    // 10年预测期
-    let presentValue = 0;
-    let currentFCF = fcf;
-    
-    for (let year = 1; year <= 10; year++) {
-        currentFCF *= (1 + growthRate);
-        presentValue += currentFCF / Math.pow(1 + discountRate, year);
-    }
-    
-    // 终值
-    const terminalValue = currentFCF * (1 + terminalGrowth) / (discountRate - terminalGrowth);
-    const terminalPV = terminalValue / Math.pow(1 + discountRate, 10);
-    
-    // 企业价值
-    const enterpriseValue = presentValue + terminalPV;
-    
-    // 每股价值
-    const valuePerShare = enterpriseValue / shares;
-    
-    return valuePerShare;
-}
-
-function initDCFCalculator() {
-    const calculateBtn = document.getElementById('calculateDCF');
-    calculateBtn.addEventListener('click', () => {
-        // 更新当前股票的参数
-        currentStock.currentFCF = parseFloat(document.getElementById('currentFCF').value);
-        currentStock.growthRate = parseFloat(document.getElementById('growthRate').value);
-        currentStock.terminalGrowth = parseFloat(document.getElementById('terminalGrowth').value);
-        currentStock.discountRate = parseFloat(document.getElementById('discountRate').value);
-        currentStock.totalShares = parseFloat(document.getElementById('totalShares').value);
-        
-        updateValuationPanel();
-    });
-}
-
-function updateValuationPanel() {
-    const intrinsicValue = calculateDCF(currentStock);
-    const margin = ((intrinsicValue - currentStock.price) / intrinsicValue * 100);
-    
-    document.getElementById('dcfValue').textContent = '¥' + intrinsicValue.toFixed(0);
-    document.getElementById('currentPriceVal').textContent = '¥' + currentStock.price.toFixed(0);
-    document.getElementById('marginValue').textContent = margin.toFixed(1) + '%';
-    
-    // 更新建议
-    const signalBox = document.querySelector('.signal-box');
-    const signalText = signalBox.querySelector('.signal-text');
-    const signalDesc = document.querySelector('.signal-desc');
-    
-    if (margin >= 30) {
-        signalBox.className = 'signal-box buy';
-        signalText.textContent = '买入';
-        signalDesc.textContent = '安全边际充足，建议买入';
-    } else if (margin >= 10) {
-        signalBox.className = 'signal-box watch';
-        signalText.textContent = '观望';
-        signalDesc.textContent = '安全边际一般，建议等待更好的买入时机';
-    } else {
-        signalBox.className = 'signal-box sell';
-        signalText.textContent = '高估';
-        signalDesc.textContent = '当前价格高于内在价值，建议卖出或观望';
-    }
-    
-    updateSensitivityChart();
-}
-
-// ==================== 图表初始化与更新 ====================
-
-function initCharts() {
-    updateFinancialChart();
-    updateMoatCharts();
-    updateValuationPanel();
-    updatePortfolioCharts();
-}
-
-function updateFinancialChart() {
-    const ctx = document.getElementById('financialChart');
-    if (!ctx) return;
-    
-    if (financialChart) {
-        financialChart.destroy();
-    }
-    
-    financialChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: currentStock.history.years,
-            datasets: [
-                {
-                    label: 'ROE (%)',
-                    data: currentStock.history.roe,
-                    borderColor: '#1a5f2a',
-                    backgroundColor: 'rgba(26, 95, 42, 0.1)',
-                    tension: 0.4,
-                    yAxisID: 'y'
-                },
-                {
-                    label: '自由现金流 (亿元)',
-                    data: currentStock.history.fcf,
-                    borderColor: '#2196f3',
-                    backgroundColor: 'rgba(33, 150, 243, 0.1)',
-                    tension: 0.4,
-                    yAxisID: 'y1'
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: {
-                mode: 'index',
-                intersect: false
-            },
-            scales: {
-                y: {
-                    type: 'linear',
-                    display: true,
-                    position: 'left',
-                    title: {
-                        display: true,
-                        text: 'ROE (%)'
-                    }
-                },
-                y1: {
-                    type: 'linear',
-                    display: true,
-                    position: 'right',
-                    title: {
-                        display: true,
-                        text: '自由现金流 (亿元)'
-                    },
-                    grid: {
-                        drawOnChartArea: false
-                    }
-                }
-            }
-        }
-    });
-}
-
-function updateMoatCharts() {
-    // 雷达图
-    const radarCtx = document.getElementById('moatRadarChart');
-    if (radarCtx) {
-        if (moatRadarChart) {
-            moatRadarChart.destroy();
-        }
-        
-        moatRadarChart = new Chart(radarCtx, {
-            type: 'radar',
-            data: {
-                labels: ['品牌护城河', '转换成本', '成本优势', '网络效应', '监管壁垒'],
-                datasets: [{
-                    label: currentStock.name,
-                    data: [
-                        currentStock.moatType.brand.score,
-                        currentStock.moatType.switching.score,
-                        currentStock.moatType.cost.score,
-                        currentStock.moatType.network.score,
-                        0 // 监管壁垒暂设为0
-                    ],
-                    backgroundColor: 'rgba(26, 95, 42, 0.2)',
-                    borderColor: '#1a5f2a',
-                    pointBackgroundColor: '#1a5f2a',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: '#1a5f2a'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    r: {
-                        beginAtZero: true,
-                        max: 50,
-                        ticks: {
-                            stepSize: 10
-                        }
-                    }
-                }
-            }
-        });
-    }
-    
-    // 趋势图
-    const trendCtx = document.getElementById('moatTrendChart');
-    if (trendCtx) {
-        if (moatTrendChart) {
-            moatTrendChart.destroy();
-        }
-        
-        moatTrendChart = new Chart(trendCtx, {
-            type: 'line',
-            data: {
-                labels: ['2021', '2022', '2023', '2024', '2025'],
-                datasets: [{
-                    label: '护城河评分',
-                    data: [
-                        currentStock.moatScore - 5,
-                        currentStock.moatScore - 3,
-                        currentStock.moatScore - 1,
-                        currentStock.moatScore - 2,
-                        currentStock.moatScore
-                    ],
-                    borderColor: '#1a5f2a',
-                    backgroundColor: 'rgba(26, 95, 42, 0.1)',
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        min: 50,
-                        max: 100
-                    }
-                }
-            }
-        });
-    }
-}
-
-function updateSensitivityChart() {
-    const ctx = document.getElementById('sensitivityChart');
-    if (!ctx) return;
-    
-    if (sensitivityChart) {
-        sensitivityChart.destroy();
-    }
-    
-    // 生成敏感性分析数据
-    const growthRates = [8, 10, 12, 14, 16];
-    const discountRates = [7, 8, 9, 10, 11];
-    
-    const datasets = discountRates.map((rate, index) => ({
-        label: `折现率 ${rate}%`,
-        data: growthRates.map(growth => {
-            const tempStock = { ...currentStock, growthRate: growth, discountRate: rate };
-            return calculateDCF(tempStock).toFixed(0);
-        }),
-        borderColor: `hsl(${120 + index * 30}, 70%, 40%)`,
-        backgroundColor: `hsla(${120 + index * 30}, 70%, 40%, 0.1)`,
+    const datasets = [{
+        label: `${stock.code} 价格`,
+        data: prices,
+        borderColor: '#667eea',
+        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+        borderWidth: 2,
+        fill: activeIndicators.price,
         tension: 0.4
-    }));
+    }];
     
-    sensitivityChart = new Chart(ctx, {
+    // MA指标
+    if (activeIndicators.ma) {
+        const ma5 = calculateMA(prices, 5);
+        const ma10 = calculateMA(prices, 10);
+        const ma20 = calculateMA(prices, 20);
+        datasets.push({
+            label: 'MA5',
+            data: ma5,
+            borderColor: '#ff9800',
+            borderWidth: 1,
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0
+        });
+        datasets.push({
+            label: 'MA10',
+            data: ma10,
+            borderColor: '#4caf50',
+            borderWidth: 1,
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0
+        });
+        datasets.push({
+            label: 'MA20',
+            data: ma20,
+            borderColor: '#f44336',
+            borderWidth: 1,
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0
+        });
+    }
+    
+    if (priceChart) priceChart.destroy();
+    
+    // 计算Y轴合理范围
+    const minPrice = Math.min(...prices);
+    const maxPrice = Math.max(...prices);
+    const padding = (maxPrice - minPrice) * 0.15 || maxPrice * 0.1;
+    
+    priceChart = new Chart(ctx, {
         type: 'line',
+        data: { labels, datasets },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: true, position: 'top' } },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    min: minPrice - padding,
+                    max: maxPrice + padding,
+                    ticks: { callback: v => '¥' + v.toFixed(2) }
+                }
+            }
+        }
+    });
+    
+    // 成交量图
+    const volumeCanvas = document.getElementById('volumeChart');
+    if (activeIndicators.vol) {
+        volumeCanvas.style.display = 'block';
+        renderVolumeChart(recentHistory);
+    } else {
+        volumeCanvas.style.display = 'none';
+        if (volumeChart) volumeChart.destroy();
+    }
+}
+
+function renderVolumeChart(history) {
+    const ctx = document.getElementById('volumeChart').getContext('2d');
+    const volumes = history.map(h => h.volume || Math.floor(Math.random() * 1000000));
+    const prices = history.map(h => h.price);
+    const colors = prices.map((p, i) => {
+        if (i === 0) return '#ccc';
+        return p >= prices[i - 1] ? '#f44336' : '#4caf50';
+    });
+    
+    if (volumeChart) volumeChart.destroy();
+    volumeChart = new Chart(ctx, {
+        type: 'bar',
         data: {
-            labels: growthRates.map(g => g + '%'),
-            datasets: datasets
+            labels: history.map((_, i) => i % 10 === 0 ? i.toString() : ''),
+            datasets: [{
+                data: volumes,
+                backgroundColor: colors,
+                borderWidth: 0
+            }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-                title: {
-                    display: true,
-                    text: '不同增长率和折现率下的内在价值'
-                }
-            },
+            plugins: { legend: { display: false } },
             scales: {
-                y: {
-                    title: {
-                        display: true,
-                        text: '每股价值 (元)'
-                    }
-                }
+                y: { display: false },
+                x: { display: false }
             }
         }
     });
 }
 
-function updatePortfolioCharts() {
-    // 行业分布图
-    const sectorCtx = document.getElementById('sectorChart');
-    if (sectorCtx) {
-        sectorChart = new Chart(sectorCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['白酒', '家电', '金融', '科技', '其他'],
-                datasets: [{
-                    data: [65, 20, 0, 0, 15],
-                    backgroundColor: [
-                        '#1a5f2a',
-                        '#2196f3',
-                        '#ff9800',
-                        '#9c27b0',
-                        '#757575'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
-            }
-        });
-    }
+function updateChartData() {
+    const stock = stocks.find(s => s.code === selectedStockCode);
+    if (!stock || !priceChart) return;
     
-    // 护城河分布图
-    const moatCtx = document.getElementById('moatDistributionChart');
-    if (moatCtx) {
-        moatDistributionChart = new Chart(moatCtx, {
-            type: 'bar',
-            data: {
-                labels: portfolio.holdings.map(h => h.name),
-                datasets: [{
-                    label: '护城河评分',
-                    data: portfolio.holdings.map(h => {
-                        const stock = stockDatabase[h.code];
-                        return stock ? stock.moatScore : 0;
-                    }),
-                    backgroundColor: '#1a5f2a'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100
-                    }
-                }
-            }
-        });
-    }
-}
-
-// ==================== 心理偏见检查清单 ====================
-
-function initChecklist() {
-    const checkboxes = document.querySelectorAll('#checklistPanel input[type="checkbox"]');
-    const saveBtn = document.getElementById('saveDecision');
+    // 获取最近的数据窗口（最多100个点）
+    const endIndex = stock.currentIndex + 1;
+    const startIndex = Math.max(0, endIndex - 100);
+    const recentHistory = stock.history.slice(startIndex, endIndex);
     
-    checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', updateBiasScore);
+    const labels = recentHistory.map(h => {
+        const date = new Date(h.time);
+        return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
     });
+    const prices = recentHistory.map(h => h.price);
     
-    saveBtn.addEventListener('click', saveDecision);
+    // 更新图表数据
+    priceChart.data.labels = labels;
+    priceChart.data.datasets[0].data = prices;
     
-    // 加载历史决策
-    loadDecisionHistory();
+    // 动态更新Y轴范围：以当前价格为中心，显示固定百分比范围
+    if (prices.length > 0) {
+        const currentPrice = prices[prices.length - 1];
+        const range = currentPrice * 0.15;  // 显示±15%的范围
+        priceChart.options.scales.y.min = currentPrice - range;
+        priceChart.options.scales.y.max = currentPrice + range;
+    }
+    
+    // 更新MA
+    if (activeIndicators.ma && priceChart.data.datasets.length > 1) {
+        const ma5 = calculateMA(prices, 5);
+        const ma10 = calculateMA(prices, 10);
+        const ma20 = calculateMA(prices, 20);
+        priceChart.data.datasets[1].data = ma5;
+        priceChart.data.datasets[2].data = ma10;
+        priceChart.data.datasets[3].data = ma20;
+    }
+    
+    priceChart.update('none');
 }
 
-function updateBiasScore() {
-    const checkboxes = document.querySelectorAll('#checklistPanel input[type="checkbox"]:checked');
-    const totalCheckboxes = document.querySelectorAll('#checklistPanel input[type="checkbox"]').length;
-    const checkedCount = checkboxes.length;
+// ==================== 功能6: 涨跌停/交易时间 ====================
+
+function isLimitUp(stock) {
+    if (stock.history.length < 2) return false;
+    const prevPrice = stock.history[stock.currentIndex - 1]?.price || stock.ipoPrice;
+    const limitPrice = prevPrice * 1.1;
+    return stock.price >= limitPrice * 0.995;
+}
+
+function isLimitDown(stock) {
+    if (stock.history.length < 2) return false;
+    const prevPrice = stock.history[stock.currentIndex - 1]?.price || stock.ipoPrice;
+    const limitPrice = prevPrice * 0.9;
+    return stock.price <= limitPrice * 1.005;
+}
+
+function updateSimDate() {
+    // 每推进100个数据点 = 1天
+    const totalPoints = stocks[0]?.currentIndex || 0;
+    const daysPassed = Math.floor(totalPoints / 100);
+    const simDate = new Date(simYear, simMonth - 1, simDay + daysPassed);
+    document.getElementById('simDate').textContent = simDate.toISOString().split('T')[0];
+}
+
+// ==================== 核心交易逻辑 ====================
+
+function selectStock(code) {
+    selectedStockCode = code;
+    renderStockList();
+    updateTradePanel();
+    initChart();
+}
+
+function updateTradePanel() {
+    const stock = stocks.find(s => s.code === selectedStockCode);
     
-    const riskLevel = checkedCount / totalCheckboxes;
-    const scoreEl = document.getElementById('biasScore');
-    const adviceEl = document.getElementById('biasAdvice');
+    // 防御性检查：确保所有DOM元素都存在
+    const selectedStockEl = document.getElementById('selectedStock');
+    const currentPriceEl = document.getElementById('currentPrice');
+    const totalCostEl = document.getElementById('totalCost');
     
-    if (riskLevel >= 0.7) {
-        scoreEl.textContent = '低';
-        scoreEl.style.color = '#d4edda';
-        adviceEl.textContent = '您已通过大部分心理偏见检查，可以做出相对理性的投资决策。';
-    } else if (riskLevel >= 0.4) {
-        scoreEl.textContent = '中';
-        scoreEl.style.color = '#fff3cd';
-        adviceEl.textContent = '您还存在一些心理偏见风险，建议重新审视投资决策。';
+    if (!stock) {
+        if (selectedStockEl) selectedStockEl.textContent = '请选择股票';
+        if (currentPriceEl) currentPriceEl.textContent = '--';
+        if (totalCostEl) totalCostEl.textContent = '--';
+        return;
+    }
+    
+    if (selectedStockEl) selectedStockEl.textContent = `${stock.code} - ${stock.name}`;
+    if (currentPriceEl) currentPriceEl.textContent = `¥${stock.price.toFixed(2)}`;
+    updateTotalCost();
+}
+
+function updateTotalCost() {
+    const stock = stocks.find(s => s.code === selectedStockCode);
+    const amount = parseInt(document.getElementById('tradeAmount').value) || 0;
+    if (stock && amount > 0) {
+        document.getElementById('totalCost').textContent = `¥${(stock.price * amount).toFixed(2)}`;
     } else {
-        scoreEl.textContent = '高';
-        scoreEl.style.color = '#f8d7da';
-        adviceEl.textContent = '您存在较高的心理偏见风险，强烈建议暂停投资，重新思考。';
+        document.getElementById('totalCost').textContent = '--';
     }
 }
 
-function saveDecision() {
-    const note = document.getElementById('decisionNote').value.trim();
-    if (!note) {
-        alert('请先填写决策思考过程');
-        return;
+// ==================== 优化后的交易函数 ====================
+
+// 切换买入/卖出标签
+function switchTradeTab(type) {
+    currentTradeType = type;
+    const tabBuy = document.getElementById('tabBuy');
+    const tabSell = document.getElementById('tabSell');
+    const confirmBtn = document.getElementById('confirmBtn');
+    
+    if (type === 'buy') {
+        tabBuy.classList.add('active');
+        tabSell.classList.remove('active');
+        confirmBtn.textContent = '确认买入';
+        confirmBtn.className = 'btn btn-confirm';
+    } else {
+        tabBuy.classList.remove('active');
+        tabSell.classList.add('active');
+        confirmBtn.textContent = '确认卖出';
+        confirmBtn.className = 'btn btn-confirm sell';
     }
-    
-    const decision = {
-        date: new Date().toLocaleString('zh-CN'),
-        stock: currentStock.name,
-        note: note,
-        price: currentStock.price
-    };
-    
-    // 保存到本地存储
-    let history = JSON.parse(localStorage.getItem('decisionHistory') || '[]');
-    history.unshift(decision);
-    localStorage.setItem('decisionHistory', JSON.stringify(history));
-    
-    // 清空输入
-    document.getElementById('decisionNote').value = '';
-    
-    // 刷新历史记录
-    loadDecisionHistory();
-    
-    alert('决策记录已保存');
+    updateTotalCost();
 }
 
-function loadDecisionHistory() {
-    const historyContainer = document.getElementById('decisionHistory');
-    const history = JSON.parse(localStorage.getItem('decisionHistory') || '[]');
+// 设置市价
+function setMarketPrice() {
+    const stock = stocks.find(s => s.code === selectedStockCode);
+    if (stock) {
+        document.getElementById('tradePrice').value = stock.price.toFixed(2);
+        updateTotalCost();
+    }
+}
+
+// 设置快捷数量
+function setAmount(amount) {
+    if (amount === 'max') {
+        const stock = stocks.find(s => s.code === selectedStockCode);
+        if (!stock) return;
+        if (currentTradeType === 'buy') {
+            // 最大可买数量
+            const maxAmount = Math.floor(userData.balance / (stock.price || 1) / 100) * 100;
+            document.getElementById('tradeAmount').value = Math.max(100, maxAmount);
+        } else {
+            // 最大可卖数量
+            const holding = userData.holdings[selectedStockCode];
+            document.getElementById('tradeAmount').value = holding ? holding.amount : 0;
+        }
+    } else {
+        document.getElementById('tradeAmount').value = amount;
+    }
+    updateTotalCost();
+}
+
+// 显示/隐藏条件单面板
+function toggleCondition() {
+    const checkbox = document.getElementById('enableCondition');
+    const panel = document.getElementById('conditionPanel');
+    panel.style.display = checkbox.checked ? 'block' : 'none';
+}
+
+// 执行订单（合并普通交易和条件委托）
+function submitOrder() {
+    if (!selectedStockCode) { alert('请先选择股票！'); return; }
     
-    if (history.length === 0) {
-        historyContainer.innerHTML = '<p style="color: #999; text-align: center;">暂无决策记录</p>';
+    const stock = stocks.find(s => s.code === selectedStockCode);
+    const amount = parseInt(document.getElementById('tradeAmount').value);
+    const priceInput = document.getElementById('tradePrice').value;
+    const isCondition = document.getElementById('enableCondition').checked;
+    
+    if (!amount || amount <= 0) { alert('请输入有效的交易数量！'); return; }
+    
+    // 如果是条件单
+    if (isCondition) {
+        const triggerPrice = parseFloat(document.getElementById('triggerPrice').value);
+        const stopLoss = parseFloat(document.getElementById('stopLossPrice').value) || null;
+        const takeProfit = parseFloat(document.getElementById('takeProfitPrice').value) || null;
+        
+        if (!triggerPrice || triggerPrice <= 0) { alert('请输入有效的触发价格！'); return; }
+        
+        // 创建条件委托
+        const order = {
+            id: orderIdCounter++,
+            type: currentTradeType,
+            stockCode: selectedStockCode,
+            stockName: stock.name,
+            targetPrice: triggerPrice,
+            amount: amount,
+            stopLoss: stopLoss,
+            takeProfit: takeProfit,
+            status: 'pending',
+            createTime: new Date().toLocaleString('zh-CN'),
+            frozen: currentTradeType === 'buy'
+        };
+        
+        // 检查资金/持仓并冻结
+        if (currentTradeType === 'buy') {
+            const estimatedCost = triggerPrice * amount;
+            if (estimatedCost > userData.balance) {
+                alert('余额不足！'); return;
+            }
+            userData.balance -= estimatedCost;  // 冻结资金
+        }
+        if (currentTradeType === 'sell') {
+            const holding = userData.holdings[selectedStockCode];
+            if (!holding || holding.amount < amount) { alert('持仓不足！'); return; }
+        }
+        
+        pendingOrders.push(order);
+        saveUserData();
+        updateAccountInfo();
+        updateOrders();
+        alert(`条件委托已设置！触发价: ¥${triggerPrice.toFixed(2)}`);
+        
+        // 清空输入
+        document.getElementById('triggerPrice').value = '';
+        document.getElementById('stopLossPrice').value = '';
+        document.getElementById('takeProfitPrice').value = '';
+        document.getElementById('enableCondition').checked = false;
+        toggleCondition();
         return;
     }
     
-    historyContainer.innerHTML = history.slice(0, 5).map(d => `
-        <div class="decision-item" style="
-            padding: 16px;
-            background: var(--bg-light);
-            border-radius: var(--radius);
-            margin-bottom: 12px;
-        ">
-            <div style="
-                display: flex;
-                justify-content: space-between;
-                margin-bottom: 8px;
-                font-size: 13px;
-                color: var(--text-secondary);
-            ">
-                <span>${d.stock} - ¥${d.price}</span>
-                <span>${d.date}</span>
+    // ===== 普通交易 =====
+    // 判断是市价单还是限价单
+    if (!priceInput || priceInput === '') {
+        // 市价单：按当前市价立即成交
+        executeImmediateTrade(stock, amount, stock.price);
+    } else {
+        // 限价单：加入委托队列，等待价格触发
+        const limitPrice = parseFloat(priceInput);
+        if (limitPrice <= 0) { alert('请输入有效的委托价格！'); return; }
+        
+        // 创建限价委托
+        const order = {
+            id: orderIdCounter++,
+            type: currentTradeType,
+            stockCode: selectedStockCode,
+            stockName: stock.name,
+            targetPrice: limitPrice,
+            amount: amount,
+            stopLoss: null,
+            takeProfit: null,
+            status: 'pending',
+            createTime: new Date().toLocaleString('zh-CN'),
+            frozen: currentTradeType === 'buy',
+            isLimitOrder: true  // 标记为限价单
+        };
+        
+        // 检查资金/持仓并冻结
+        if (currentTradeType === 'buy') {
+            const estimatedCost = limitPrice * amount;
+            if (estimatedCost > userData.balance) {
+                alert('余额不足！'); return;
+            }
+            userData.balance -= estimatedCost;  // 冻结资金
+        }
+        if (currentTradeType === 'sell') {
+            const holding = userData.holdings[selectedStockCode];
+            if (!holding || holding.amount < amount) { alert('持仓不足！'); return; }
+        }
+        
+        pendingOrders.push(order);
+        saveUserData();
+        updateAccountInfo();
+        updateOrders();
+        alert(`限价委托已设置！委托价: ¥${limitPrice.toFixed(2)}，等待价格触发...`);
+    }
+}
+
+// 立即成交（市价单）
+function executeImmediateTrade(stock, amount, tradePrice) {
+    const totalCost = tradePrice * amount;
+    
+    if (currentTradeType === 'buy') {
+        if (totalCost > userData.balance) { alert('余额不足！'); return; }
+        
+        userData.balance -= totalCost;
+        if (!userData.holdings[stock.code]) {
+            userData.holdings[stock.code] = { amount: 0, avgPrice: 0, totalCost: 0 };
+        }
+        const holding = userData.holdings[stock.code];
+        holding.totalCost += totalCost;
+        holding.amount += amount;
+        holding.avgPrice = holding.totalCost / holding.amount;
+    } else {
+        const holding = userData.holdings[stock.code];
+        if (!holding || holding.amount < amount) { alert('持仓不足！'); return; }
+        
+        const totalCost = tradePrice * amount;
+        userData.balance += totalCost;
+        holding.amount -= amount;
+        holding.totalCost = holding.avgPrice * holding.amount;
+        if (holding.amount === 0) delete userData.holdings[stock.code];
+    }
+    
+    // 记录交易历史
+    userData.history.unshift({
+        time: new Date().toLocaleString('zh-CN'),
+        type: currentTradeType,
+        stock: stock.code,
+        name: stock.name,
+        amount: amount,
+        price: tradePrice,
+        total: tradePrice * amount
+    });
+    if (userData.history.length > 50) userData.history = userData.history.slice(0, 50);
+    
+    saveUserData();
+    updateAccountInfo();
+    updateHoldings();
+    updateTradeHistory();
+    updateTotalCost();
+    updateAssetHistory();
+    
+    // 成就检查
+    checkAchievement('first_trade');
+    checkAchievement('trade_10');
+    checkAchievement('trade_50');
+    checkAchievement('hold_5');
+    
+    alert(`${currentTradeType === 'buy' ? '买入' : '卖出'}成功！成交价: ¥${tradePrice.toFixed(2)}`);
+}
+
+function executeTrade(type) {
+    if (!selectedStockCode) { alert('请先选择股票！'); return; }
+    
+    const stock = stocks.find(s => s.code === selectedStockCode);
+    const amount = parseInt(document.getElementById('tradeAmount').value);
+    if (!amount || amount <= 0) { alert('请输入有效的交易数量！'); return; }
+    
+    const totalCost = stock.price * amount;
+    
+    if (type === 'buy') {
+        if (totalCost > userData.balance) { alert('余额不足！'); return; }
+        userData.balance -= totalCost;
+        if (!userData.holdings[stock.code]) {
+            userData.holdings[stock.code] = { amount: 0, avgPrice: 0, totalCost: 0 };
+        }
+        const holding = userData.holdings[stock.code];
+        holding.totalCost += totalCost;
+        holding.amount += amount;
+        holding.avgPrice = holding.totalCost / holding.amount;
+    } else if (type === 'sell') {
+        const holding = userData.holdings[stock.code];
+        if (!holding || holding.amount < amount) { alert('持仓不足！'); return; }
+        userData.balance += totalCost;
+        holding.amount -= amount;
+        holding.totalCost = holding.avgPrice * holding.amount;
+        if (holding.amount === 0) delete userData.holdings[stock.code];
+    }
+    
+    userData.history.unshift({
+        time: new Date().toLocaleString('zh-CN'),
+        type: type,
+        stock: stock.code,
+        name: stock.name,
+        amount: amount,
+        price: stock.price,
+        total: totalCost
+    });
+    if (userData.history.length > 50) userData.history = userData.history.slice(0, 50);
+    
+    saveUserData();
+    updateAccountInfo();
+    updateHoldings();
+    updateTradeHistory();
+    updateTotalCost();
+    updateAssetHistory();
+    
+    // 成就检查
+    checkAchievement('first_trade');
+    checkAchievement('trade_10');
+    checkAchievement('trade_50');
+    checkAchievement('hold_5');
+    
+    alert(`${type === 'buy' ? '买入' : '卖出'}成功！`);
+}
+
+// ==================== 委托订单逻辑 ====================
+
+// 旧函数已删除，使用 executeOrder() 替代
+
+function cancelOrder(orderId) {
+    const idx = pendingOrders.findIndex(o => o.id === orderId);
+    if (idx === -1) return;
+    if (pendingOrders[idx].status !== 'pending') { alert('该委托已执行或取消！'); return; }
+
+    const order = pendingOrders[idx];
+
+    // 返还冻结的资金（仅限新买入订单）
+    if (order.type === 'buy' && order.frozen) {
+        const frozenCost = order.targetPrice * order.amount;
+        userData.balance += frozenCost;
+    }
+
+    order.status = 'cancelled';
+    saveUserData();
+    updateAccountInfo();
+    updateOrders();
+    alert('委托已取消！');
+}
+
+function checkOrders() {
+    let hasExecution = false;
+    pendingOrders.forEach((order, index) => {
+        if (order.status !== 'pending') return;
+        const stock = stocks.find(s => s.code === order.stockCode);
+        if (!stock) return;
+        
+        let shouldExecute = false;
+        if (order.type === 'buy' && stock.price <= order.targetPrice) shouldExecute = true;
+        if (order.type === 'sell' && stock.price >= order.targetPrice) shouldExecute = true;
+        
+        if (shouldExecute) {
+            executeOrder(order);
+            hasExecution = true;
+        }
+    });
+    if (hasExecution) {
+        updateAccountInfo();
+        updateHoldings();
+        updateOrders();
+    }
+}
+
+function executeOrder(order) {
+    const stock = stocks.find(s => s.code === order.stockCode);
+    if (!stock) return;
+    const totalCost = stock.price * order.amount;
+
+    if (order.type === 'buy') {
+        // 买入：根据frozen标记判断资金状态
+        if (order.frozen) {
+            // 新订单：已冻结资金，只处理触发价与实际价的差额
+            const frozenCost = order.targetPrice * order.amount;
+            const difference = frozenCost - totalCost;
+            if (difference !== 0) {
+                userData.balance += difference;
+            }
+        } else {
+            // 旧订单：未冻结资金，直接扣除
+            userData.balance -= totalCost;
+        }
+        if (!userData.holdings[order.stockCode]) {
+            userData.holdings[order.stockCode] = { amount: 0, avgPrice: 0, totalCost: 0 };
+        }
+        const holding = userData.holdings[order.stockCode];
+        holding.totalCost += totalCost;
+        holding.amount += order.amount;
+        holding.avgPrice = holding.totalCost / holding.amount;
+
+        // 如果设置了止损止盈，自动创建止损止盈单
+        if (order.stopLoss || order.takeProfit) {
+            userData.stopOrders.push({
+                id: orderIdCounter++,
+                stockCode: order.stockCode,
+                stockName: order.stockName,
+                amount: order.amount,
+                stopLoss: order.stopLoss,
+                takeProfit: order.takeProfit,
+                createTime: new Date().toLocaleString('zh-CN')
+            });
+            updateStopOrders();
+        }
+    } else if (order.type === 'sell') {
+        userData.balance += totalCost;
+        const holding = userData.holdings[order.stockCode];
+        holding.amount -= order.amount;
+        holding.totalCost = holding.avgPrice * holding.amount;
+        if (holding.amount === 0) delete userData.holdings[order.stockCode];
+    }
+    
+    order.status = 'executed';
+    userData.history.unshift({
+        time: new Date().toLocaleString('zh-CN'),
+        type: order.type,
+        stock: order.stockCode,
+        name: order.stockName,
+        amount: order.amount,
+        price: stock.price,
+        total: totalCost,
+        isOrder: true
+    });
+    if (userData.history.length > 50) userData.history = userData.history.slice(0, 50);
+    
+    saveUserData();
+    showNotification(`委托已执行！${order.stockCode} ${order.type === 'buy' ? '买入' : '卖出'} ${order.amount}股`);
+    checkAchievement('first_trade');
+}
+
+function updateOrders() {
+    const list = document.getElementById('ordersList');
+    const pending = pendingOrders.filter(o => o.status === 'pending');
+    if (pending.length === 0) {
+        list.innerHTML = '<p class="empty">暂无委托</p>';
+        return;
+    }
+    list.innerHTML = '';
+    pending.forEach(order => {
+        const item = document.createElement('div');
+        item.className = 'order-item';
+        item.innerHTML = `
+            <div class="order-info">
+                <span style="font-weight:bold;color:${order.type === 'buy' ? '#f44336' : '#4caf50'}">${order.type === 'buy' ? '买入' : '卖出'}</span>
+                <span>${order.stockCode} - ${order.amount}股</span>
+                <span>触发价:¥${order.targetPrice.toFixed(2)}</span>
+                ${order.stopLoss ? `<span style="color:#ff9800;font-size:12px;">止损:¥${order.stopLoss.toFixed(2)}</span>` : ''}
+                ${order.takeProfit ? `<span style="color:#4caf50;font-size:12px;">止盈:¥${order.takeProfit.toFixed(2)}</span>` : ''}
             </div>
-            <p style="font-size: 14px; line-height: 1.6;">${d.note}</p>
-        </div>
-    `).join('');
+            <button class="btn-cancel" onclick="cancelOrder(${order.id})">撤单</button>
+        `;
+        list.appendChild(item);
+    });
 }
 
-// ==================== 工具函数 ====================
+// ==================== 功能7: 游戏化成就系统 ====================
 
-// 格式化数字
-function formatNumber(num) {
-    if (num >= 100000000) {
-        return (num / 100000000).toFixed(2) + '亿';
-    } else if (num >= 10000) {
-        return (num / 10000).toFixed(2) + '万';
+function checkAchievement(id) {
+    if (userData.achievements.includes(id)) return;
+    
+    const achievement = achievementsList.find(a => a.id === id);
+    if (!achievement) return;
+    
+    let shouldUnlock = false;
+    
+    switch(id) {
+        case 'first_trade':
+            shouldUnlock = userData.history.length >= 1;
+            break;
+        case 'first_profit':
+            shouldUnlock = userData.history.some(h => {
+                if (h.type !== 'sell') return false;
+                const holding = userData.holdings[h.stock];
+                return holding && stock.price > h.price;
+            });
+            break;
+        case 'profit_10k':
+            shouldUnlock = (getTotalAssets() - userData.initialBalance) >= 10000;
+            break;
+        case 'profit_50k':
+            shouldUnlock = (getTotalAssets() - userData.initialBalance) >= 50000;
+            break;
+        case 'double_assets':
+            shouldUnlock = getTotalAssets() >= userData.initialBalance * 2;
+            break;
+        case 'trade_10':
+            shouldUnlock = userData.history.length >= 10;
+            break;
+        case 'trade_50':
+            shouldUnlock = userData.history.length >= 50;
+            break;
+        case 'hold_5':
+            shouldUnlock = Object.keys(userData.holdings).length >= 5;
+            break;
+        case 'stop_loss':
+        case 'take_profit':
+            shouldUnlock = true;
+            break;
     }
-    return num.toFixed(2);
+    
+    if (shouldUnlock) {
+        userData.achievements.push(id);
+        saveUserData();
+        showAchievementNotification(achievement);
+        updateAchievements();
+    }
 }
 
-// 计算复合年增长率 (CAGR)
-function calculateCAGR(beginValue, endValue, years) {
-    return (Math.pow(endValue / beginValue, 1 / years) - 1) * 100;
+function showAchievementNotification(achievement) {
+    const notif = document.getElementById('achievementNotification');
+    document.getElementById('achievementName').textContent = `${achievement.icon} ${achievement.name}: ${achievement.desc}`;
+    notif.style.display = 'flex';
+    setTimeout(() => {
+        notif.style.display = 'none';
+    }, 3000);
 }
 
-// 导出函数供全局使用
-window.switchTab = switchTab;
+function updateAchievements() {
+    // 确保 achievements 是数组
+    if (!Array.isArray(userData.achievements)) {
+        userData.achievements = [];
+    }
+    
+    const list = document.getElementById('achievementsList');
+    if (userData.achievements.length === 0) {
+        list.innerHTML = '<p class="empty">暂无成就</p>';
+        return;
+    }
+    list.innerHTML = '';
+    userData.achievements.forEach(id => {
+        const ach = achievementsList.find(a => a.id === id);
+        if (!ach) return;
+        const item = document.createElement('div');
+        item.className = 'achievement-item';
+        item.innerHTML = `
+            <div class="achievement-icon">${ach.icon}</div>
+            <div class="achievement-info">
+                <div class="achievement-name">${ach.name}</div>
+                <div class="achievement-desc">${ach.desc}</div>
+            </div>
+        `;
+        list.appendChild(item);
+    });
+}
+
+// ==================== 更新函数 ====================
+
+function updateAccountInfo() {
+    const totalAssets = getTotalAssets();
+    const profit = totalAssets - userData.initialBalance;
+    const profitRate = ((profit / userData.initialBalance) * 100).toFixed(2);
+    
+    document.getElementById('balance').textContent = `¥${userData.balance.toFixed(2)}`;
+    document.getElementById('totalAssets').textContent = `¥${totalAssets.toFixed(2)}`;
+    document.getElementById('totalProfit').textContent = `¥${profit.toFixed(2)}`;
+    document.getElementById('profitRate').textContent = `${profit >= 0 ? '+' : ''}${profitRate}%`;
+    
+    document.getElementById('totalProfit').className = profit >= 0 ? 'positive' : 'negative';
+    document.getElementById('profitRate').className = profit >= 0 ? 'positive' : 'negative';
+}
+
+function updateHoldings() {
+    const list = document.getElementById('holdingsList');
+    const codes = Object.keys(userData.holdings);
+    if (codes.length === 0) {
+        list.innerHTML = '<p class="empty">暂无持仓</p>';
+        return;
+    }
+    list.innerHTML = '';
+    codes.forEach(code => {
+        const holding = userData.holdings[code];
+        const stock = stocks.find(s => s.code === code);
+        if (!stock) return;
+        const currentValue = stock.price * holding.amount;
+        const cost = holding.avgPrice * holding.amount;
+        const profit = currentValue - cost;
+        const profitPercent = ((profit / cost) * 100).toFixed(2);
+        
+        const item = document.createElement('div');
+        item.className = 'holding-item';
+        item.innerHTML = `
+            <div class="holding-header">
+                <span><strong>${code}</strong> - ${holding.amount}股</span>
+            </div>
+            <div class="holding-details">
+                <div class="holding-row">
+                    <span class="label">当前价:</span>
+                    <span class="value">¥${stock.price.toFixed(2)}</span>
+                </div>
+                <div class="holding-row">
+                    <span class="label">平均成本:</span>
+                    <span class="value">¥${holding.avgPrice.toFixed(2)}</span>
+                </div>
+            </div>
+            <div class="${profit >= 0 ? 'positive' : 'negative'} holding-profit">
+                盈亏: ¥${profit.toFixed(2)} (${profit >= 0 ? '+' : ''}${profitPercent}%)
+            </div>
+        `;
+        list.appendChild(item);
+    });
+}
+
+function updateTradeHistory() {
+    const list = document.getElementById('tradeHistory');
+    if (userData.history.length === 0) {
+        list.innerHTML = '<p class="empty">暂无记录</p>';
+        return;
+    }
+    list.innerHTML = '';
+    userData.history.slice(0, 20).forEach(record => {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        const typeClass = record.isOrder || record.isStopOrder ? ' (委托)' : '';
+        item.innerHTML = `
+            <span class="type ${record.type}">${record.type === 'buy' ? '买入' : '卖出'}${typeClass}</span>
+            <span>${record.stock}</span>
+            <span>${record.amount}股</span>
+            <span>¥${record.price.toFixed(2)}</span>
+        `;
+        list.appendChild(item);
+    });
+}
+
+function getTotalAssets() {
+    let total = userData.balance;
+    Object.keys(userData.holdings).forEach(code => {
+        const holding = userData.holdings[code];
+        const stock = stocks.find(s => s.code === code);
+        if (stock) total += stock.price * holding.amount;
+    });
+    return total;
+}
+
+// ==================== 价格更新 ====================
+
+// 图表更新节流：记录上次图表更新时间
+let lastChartUpdateTime = 0;
+const CHART_UPDATE_INTERVAL = 60000; // 1分钟 = 60000毫秒
+
+function startPriceUpdates() {
+    console.log('开始价格更新定时器...');
+    
+    // 更新页面状态指示器
+    const statusEl = document.getElementById('priceUpdateStatus');
+    if (statusEl) {
+        statusEl.textContent = '价格更新: 运行中';
+        statusEl.style.background = '#4caf50';
+    }
+    
+    updateInterval = setInterval(() => {
+        try {
+            updateStockPrices();
+            checkOrders();
+            checkStopOrders();
+            renderStockList();
+            
+            if (selectedStockCode) {
+                updateTradePanel();
+                
+                // 节流：图表最多1分钟更新一次
+                const now = Date.now();
+                if (now - lastChartUpdateTime >= CHART_UPDATE_INTERVAL) {
+                    updateChartData();
+                    lastChartUpdateTime = now;
+                    console.log('图表已更新');
+                }
+            }
+            
+            updateAccountInfo();
+            updateHoldings();
+            updateSimDate();
+            
+            // 更新状态指示器的最后更新时间
+            if (statusEl) {
+                const now = new Date();
+                statusEl.textContent = `价格更新: ${now.getSeconds()}秒`;
+            }
+        } catch (error) {
+            console.error('价格更新出错:', error);
+            if (statusEl) {
+                statusEl.textContent = '价格更新: 出错';
+                statusEl.style.background = '#f44336';
+            }
+        }
+    }, 1000); // 改为1秒更新一次数据（原来200ms太快）
+    
+    console.log('定时器已启动，ID:', updateInterval);
+}
+
+function updateStockPrices() {
+    // 调试输出：确认函数被调用
+    if (Math.random() < 0.01) {  // 只在约1%的时间内输出，避免刷屏
+        console.log('价格更新中...', stocks[0].code, stocks[0].price, 'index:', stocks[0].currentIndex);
+    }
+    
+    stocks.forEach(stock => {
+        // 计算该股票的价格中间值（用于均值回归）
+        const midPrice = (stock.minPrice + stock.maxPrice) / 2;
+        
+        if (stock.currentIndex < stock.history.length - 1) {
+            // 播放历史数据
+            stock.currentIndex++;
+            const historyPoint = stock.history[stock.currentIndex];
+            const oldPrice = stock.price;
+            stock.price = historyPoint.price;
+            stock.change = stock.price - oldPrice;
+            stock.changePercent = oldPrice !== 0 ? (stock.change / oldPrice) * 100 : 0;
+        } else {
+            // 随机生成新价格，使用均值回归模型
+            const oldPrice = stock.price;
+            
+            // 均值回归力量（回归到该股票的阈值中间值）
+            const meanReversionForce = (midPrice - oldPrice) * 0.01;
+            
+            // 随机波动
+            const randomChange = (Math.random() - 0.5) * 2;
+            
+            let newPrice = oldPrice + meanReversionForce + randomChange;
+            
+            // 涨跌停限制
+            const limitUp = oldPrice * 1.1;
+            const limitDown = oldPrice * 0.9;
+            newPrice = Math.max(limitDown, Math.min(limitUp, newPrice));
+            
+            // 使用股票设定的阈值范围
+            newPrice = Math.max(stock.minPrice, Math.min(stock.maxPrice, newPrice));
+            
+            stock.price = newPrice;
+            stock.change = stock.price - oldPrice;
+            stock.changePercent = (stock.change / oldPrice) * 100;
+            
+            stock.history.push({ 
+                time: Date.now(), 
+                price: stock.price, 
+                volume: Math.floor(Math.random() * 1000000) 
+            });
+        }
+        
+        // 限制history长度
+        if (stock.history.length > 2000) {
+            stock.history = stock.history.slice(-2000);
+            stock.currentIndex = stock.history.length - 1;
+        }
+    });
+}
+
+function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').textContent = now.toLocaleTimeString('zh-CN', { hour12: false });
+}
+
+// ==================== 通知 ====================
+
+function showNotification(message) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed; top: 20px; right: 20px;
+        background: #4caf50; color: white;
+        padding: 15px 20px; border-radius: 5px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        z-index: 1000; animation: slideIn 0.3s ease;
+        max-width: 400px; font-size: 14px;
+    `;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => document.body.removeChild(notification), 300);
+    }, 3000);
+}
+
+// 监听输入
+document.addEventListener('DOMContentLoaded', function() {
+    const tradeAmountInput = document.getElementById('tradeAmount');
+    if (tradeAmountInput) tradeAmountInput.addEventListener('input', updateTotalCost);
+});
+window.addEventListener('beforeunload', saveUserData);
