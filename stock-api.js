@@ -16,59 +16,44 @@ class StockAPI {
         this.stockListCacheExpiry = 24 * 60 * 60 * 1000; // 24小时
     }
 
-    /**
-     * 获取A股股票列表（轻量级，只包含代码和名称）
-     */
-    async getStockList() {
-        // 检查缓存
-        if (this.stockListCache && this.stockListCacheTime) {
-            const age = Date.now() - this.stockListCacheTime;
-            if (age < this.stockListCacheExpiry) {
-                return this.stockListCache;
-            }
+   async getStockList() {
+    // 检查缓存
+    if (this.stockListCache && this.stockListCacheTime) {
+        const age = Date.now() - this.stockListCacheTime;
+        if (age < this.stockListCacheExpiry) {
+            return this.stockListCache;
         }
+    }
 
+    try {
+        const fallbackList = this.getExtendedStockList();
+        
+        this.stockListCache = fallbackList;
+        this.stockListCacheTime = Date.now();
+        
         try {
-            // 使用东方财富API获取所有A股（只取必要字段）
-            const response = await fetch(`${this.eastmoneyURL}/qt/clist/get?pn=1&pz=5000&po=1&np=1&fltt=2&invt=2&fid=f12&fs=m:0+t:6,m:0+t:13,m:1+t:2,m:1+t:23&fields=f12,f14,f13`);
-            const data = await response.json();
-            
-            if (data.data && data.data.diff) {
-                const stocks = data.data.diff.map(item => ({
-                    code: item.f12,
-                    name: item.f14,
-                    market: item.f13 === '1' ? 'SH' : 'SZ'
-                }));
-                
-                // 缓存
-                this.stockListCache = stocks;
-                this.stockListCacheTime = Date.now();
-                
-                // 同时保存到localStorage
-                try {
-                    localStorage.setItem('stockListCache', JSON.stringify(stocks));
-                    localStorage.setItem('stockListCacheTime', Date.now().toString());
-                } catch (e) {
-                    console.warn('localStorage缓存失败');
-                }
-                
-                return stocks;
-            }
-        } catch (error) {
-            console.error('获取股票列表失败:', error);
-            // 尝试从localStorage恢复
-            try {
-                const cached = localStorage.getItem('stockListCache');
-                if (cached) {
-                    return JSON.parse(cached);
-                }
-            } catch (e) {
-                console.warn('读取缓存失败');
-            }
+            localStorage.setItem('stockListCache', JSON.stringify(fallbackList));
+            localStorage.setItem('stockListCacheTime', Date.now().toString());
+        } catch (e) {
+            console.warn('localStorage缓存失败');
         }
         
-        return this.getFallbackStockList();
+        return fallbackList;
+    } catch (error) {
+        console.error('获取股票列表失败:', error);
     }
+    
+    try {
+        const cached = localStorage.getItem('stockListCache');
+        if (cached) {
+            return JSON.parse(cached);
+        }
+    } catch (e) {
+        console.warn('读取缓存失败');
+    }
+    
+    return this.getFallbackStockList();
+}
 
     /**
      * 获取单只股票详细信息
@@ -316,6 +301,133 @@ async searchStocks(keyword) {
             { code: '600900', name: '长江电力', market: 'SH' }
         ];
     }
+        getFallbackStockList() {
+        return [
+            { code: '600519', name: '贵州茅台', market: 'SH' },
+            { code: '000858', name: '五粮液', market: 'SZ' },
+            { code: '000333', name: '美的集团', market: 'SZ' },
+            { code: '600036', name: '招商银行', market: 'SH' },
+            { code: '601318', name: '中国平安', market: 'SH' },
+            { code: '002594', name: '比亚迪', market: 'SZ' },
+            { code: '300750', name: '宁德时代', market: 'SZ' },
+            { code: '601012', name: '隆基绿能', market: 'SH' },
+            { code: '601166', name: '兴业银行', market: 'SH' },
+            { code: '600900', name: '长江电力', market: 'SH' }
+        ];
+    }
+
+    getExtendedStockList() {
+        return [
+            // 白酒
+            { code: '600519', name: '贵州茅台', market: 'SH' },
+            { code: '000858', name: '五粮液', market: 'SZ' },
+            { code: '000568', name: '泸州老窖', market: 'SZ' },
+            { code: '600809', name: '山西汾酒', market: 'SH' },
+            { code: '002304', name: '洋河股份', market: 'SZ' },
+            // 家电
+            { code: '000333', name: '美的集团', market: 'SZ' },
+            { code: '000651', name: '格力电器', market: 'SZ' },
+            { code: '600690', name: '海尔智家', market: 'SH' },
+            // 银行
+            { code: '600036', name: '招商银行', market: 'SH' },
+            { code: '601166', name: '兴业银行', market: 'SH' },
+            { code: '601398', name: '工商银行', market: 'SH' },
+            { code: '601288', name: '农业银行', market: 'SH' },
+            { code: '601939', name: '建设银行', market: 'SH' },
+            { code: '601988', name: '中国银行', market: 'SH' },
+            { code: '600016', name: '民生银行', market: 'SH' },
+            { code: '601328', name: '交通银行', market: 'SH' },
+            { code: '600000', name: '浦发银行', market: 'SH' },
+            // 保险
+            { code: '601318', name: '中国平安', market: 'SH' },
+            { code: '601628', name: '中国人寿', market: 'SH' },
+            { code: '601601', name: '中国太保', market: 'SH' },
+            { code: '601336', name: '新华保险', market: 'SH' },
+            // 新能源
+            { code: '300750', name: '宁德时代', market: 'SZ' },
+            { code: '002594', name: '比亚迪', market: 'SZ' },
+            { code: '601012', name: '隆基绿能', market: 'SH' },
+            { code: '600438', name: '通威股份', market: 'SH' },
+            { code: '002460', name: '赣锋锂业', market: 'SZ' },
+            { code: '002466', name: '天齐锂业', market: 'SZ' },
+            { code: '300014', name: '亿纬锂能', market: 'SZ' },
+            { code: '002074', name: '国轩高科', market: 'SZ' },
+            // 电力
+            { code: '600900', name: '长江电力', market: 'SH' },
+            { code: '601985', name: '中国核电', market: 'SH' },
+            { code: '600011', name: '华能国际', market: 'SH' },
+            { code: '600886', name: '国投电力', market: 'SH' },
+            // 医药
+            { code: '600276', name: '恒瑞医药', market: 'SH' },
+            { code: '000538', name: '云南白药', market: 'SZ' },
+            { code: '600436', name: '片仔癀', market: 'SH' },
+            { code: '000963', name: '华东医药', market: 'SZ' },
+            { code: '300003', name: '乐普医疗', market: 'SZ' },
+            { code: '603259', name: '药明康德', market: 'SH' },
+            { code: '300760', name: '迈瑞医疗', market: 'SZ' },
+            { code: '600196', name: '复星医药', market: 'SH' },
+            // 科技
+            { code: '000725', name: '京东方A', market: 'SZ' },
+            { code: '600584', name: '长电科技', market: 'SH' },
+            { code: '002371', name: '北方华创', market: 'SZ' },
+            { code: '688981', name: '中芯国际', market: 'SH' },
+            { code: '603501', name: '韦尔股份', market: 'SH' },
+            { code: '002049', name: '紫光国微', market: 'SZ' },
+            { code: '600745', name: '闻泰科技', market: 'SH' },
+            { code: '300782', name: '卓胜微', market: 'SZ' },
+            // 互联网/软件
+            { code: '300413', name: '芒果超媒', market: 'SZ' },
+            { code: '002555', name: '三七互娱', market: 'SZ' },
+            { code: '002624', name: '完美世界', market: 'SZ' },
+            { code: '300418', name: '昆仑万维', market: 'SZ' },
+            // 食品饮料
+            { code: '600887', name: '伊利股份', market: 'SH' },
+            { code: '002507', name: '涪陵榨菜', market: 'SZ' },
+            { code: '603288', name: '海天味业', market: 'SH' },
+            { code: '600872', name: '中炬高新', market: 'SH' },
+            { code: '000895', name: '双汇发展', market: 'SZ' },
+            // 汽车
+            { code: '601633', name: '长城汽车', market: 'SH' },
+            { code: '601238', name: '广汽集团', market: 'SH' },
+            { code: '600104', name: '上汽集团', market: 'SH' },
+            { code: '000625', name: '长安汽车', market: 'SZ' },
+            // 房地产
+            { code: '000002', name: '万科A', market: 'SZ' },
+            { code: '600048', name: '保利发展', market: 'SH' },
+            { code: '001979', name: '招商蛇口', market: 'SZ' },
+            // 基建/建筑
+            { code: '601668', name: '中国建筑', market: 'SH' },
+            { code: '601390', name: '中国中铁', market: 'SH' },
+            { code: '601186', name: '中国铁建', market: 'SH' },
+            { code: '601800', name: '中国交建', market: 'SH' },
+            { code: '601618', name: '中国中冶', market: 'SH' },
+            // 石油/化工
+            { code: '601857', name: '中国石油', market: 'SH' },
+            { code: '600028', name: '中国石化', market: 'SH' },
+            { code: '600938', name: '中国海油', market: 'SH' },
+            { code: '002648', name: '卫星化学', market: 'SZ' },
+            { code: '600309', name: '万华化学', market: 'SH' },
+            // 煤炭
+            { code: '601088', name: '中国神华', market: 'SH' },
+            { code: '601225', name: '陕西煤业', market: 'SH' },
+            { code: '600188', name: '兖矿能源', market: 'SH' },
+            // 钢铁
+            { code: '600019', name: '宝钢股份', market: 'SH' },
+            { code: '000932', name: '华菱钢铁', market: 'SZ' },
+            // 航空
+            { code: '601111', name: '中国国航', market: 'SH' },
+            { code: '600115', name: '中国东航', market: 'SH' },
+            { code: '600029', name: '南方航空', market: 'SH' },
+            // 电信
+            { code: '601728', name: '中国电信', market: 'SH' },
+            { code: '600941', name: '中国移动', market: 'SH' },
+            { code: '600050', name: '中国联通', market: 'SH' },
+            // 方正科技
+            { code: '600601', name: '方正科技', market: 'SH' }
+        ];
+    }
+}
+
 }
 
 // 创建全局实例
