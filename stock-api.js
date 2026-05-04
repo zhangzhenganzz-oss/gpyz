@@ -428,8 +428,6 @@ async searchStocks(keyword) {
     }
 }
 
-}
-
 // 创建全局实例
 const stockAPI = new StockAPI();
 
